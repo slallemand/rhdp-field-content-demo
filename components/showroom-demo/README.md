@@ -44,7 +44,7 @@ This Helm chart deploys a Showroom instance that serves interactive demo content
 |-----------|-------------|---------|
 | `replicaCount` | Number of Showroom pods | `1` |
 | `image.repository` | Showroom container image | `quay.io/rhpds/showroom` |
-| `image.tag` | Image tag | `v2.6.1` |
+| `image.tag` | Image tag | `0.1.9` |
 | `content.gitUrl` | Git repository URL | `https://github.com/slallemand/rhdp-field-content-demo.git` |
 | `content.gitRef` | Git branch/tag | `main` |
 | `content.contentPath` | Path to showroom-content/ in repo | `showroom-content` |

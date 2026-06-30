@@ -107,7 +107,7 @@ initContainers:
 ```yaml
 containers:
 - name: showroom
-  image: quay.io/rhpds/showroom:v2.6.1
+  image: quay.io/rhpds/showroom:0.1.9
   env:
   - name: OPENSHIFT_CONSOLE_URL
     value: "https://console-openshift-console.apps.{{ .Values.deployer.domain }}"

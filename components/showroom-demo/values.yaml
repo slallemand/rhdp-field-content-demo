@@ -4,7 +4,7 @@ replicaCount: 1
 
 image:
   repository: quay.io/rhpds/showroom
-  tag: "v2.6.1"
+  tag: "0.1.9"
   pullPolicy: IfNotPresent
 
 service:

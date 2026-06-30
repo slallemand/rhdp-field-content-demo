@@ -14,7 +14,7 @@ content:
 
 ui:
   bundle:
-    url: https://github.com/rhpds/showroom-content/releases/download/v2.6.1/ui-bundle.zip
+    url: https://github.com/rhpds/showroom-content/releases/latest/download/ui-bundle.zip
   supplemental_files: ./supplemental-ui
 
 output:
