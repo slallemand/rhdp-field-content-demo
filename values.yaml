@@ -30,7 +30,7 @@ helmCharts:
     source:
       repoURL: https://github.com/slallemand/rhdp-field-content-demo.git
       targetRevision: HEAD
-      path: charts/hello-nodejs
+      path: apps/hello-nodejs
     values:
       replicas: 2
 

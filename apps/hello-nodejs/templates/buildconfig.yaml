@@ -16,7 +16,7 @@ spec:
     git:
       uri: https://github.com/slallemand/rhdp-field-content-demo.git
       ref: main
-    contextDir: charts/hello-nodejs/app
+    contextDir: apps/hello-nodejs/app
   strategy:
     type: Docker
     dockerStrategy:
