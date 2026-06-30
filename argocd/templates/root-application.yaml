@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: field-content-root
+  namespace: {{ .Values.argocd.namespace }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.argocd.project }}
+  source:
+    repoURL: {{ .Values.gitops.repoURL }}
+    targetRevision: {{ .Values.gitops.revision }}
+    path: {{ .Values.gitops.path }}
+    helm:
+      releaseName: field-content-demo
+      valuesObject:
+        argocd: {{ toYaml .Values.argocd | nindent 10 }}
+        gitops: {{ toYaml .Values.gitops | nindent 10 }}
+        deployer: {{ toYaml .Values.deployer | nindent 10 }}
+        litemaas: {{ toYaml .Values.litemaas | nindent 10 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.argocd.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

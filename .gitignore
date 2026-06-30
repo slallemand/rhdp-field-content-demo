@@ -1,0 +1,15 @@
+# Helm
+*.tgz
+charts/
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Temporary files
+*.tmp
+*.swp
+*~

@@ -1,0 +1,38 @@
+# ArgoCD Configuration
+argocd:
+  namespace: openshift-gitops
+  project: default
+
+# GitOps Repository Configuration
+# These values are typically overridden by the RHDP deployer
+gitops:
+  repoURL: https://github.com/slallemand/rhdp-field-content-demo.git
+  revision: main
+  path: .  # Root path where this chart lives
+
+# Deployer Configuration
+# Injected by field content workload
+deployer:
+  apiUrl: https://api.cluster-example.redhatworkshops.io:6443
+  domain: apps.cluster-example.redhatworkshops.io
+
+# LiteMaaS Configuration (optional)
+litemaas:
+  enabled: false
+  apiKey: null
+  apiUrl: null
+  model: llama-scout-17b
+
+# Components to Deploy
+components:
+  # OpenShift Pipelines Operator
+  openshiftPipelines:
+    enabled: true
+    namespace: openshift-operators
+    subscription:
+      channel: latest
+      installPlanApproval: Automatic
+      name: openshift-pipelines-operator-rh
+      source: redhat-operators
+      sourceNamespace: openshift-marketplace
+      startingCSV: ""
