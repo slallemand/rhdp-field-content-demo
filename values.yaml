@@ -24,7 +24,7 @@ operators:
 helmCharts:
   # Example: Node.js "Hello RHDP" application
   hello-nodejs:
-    enabled: false  # Set to true to deploy
+    enabled: true  # Set to true to deploy
     namespace: hello-nodejs
     wave: 10
     source:
