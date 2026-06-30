@@ -17,8 +17,8 @@ spec:
         demo.redhat.com/application: "field-content"
     spec:
       initContainers:
-      - name: git-clone
-        image: alpine/git:latest
+      - name: build-content
+        image: docker.io/antora/antora:3.1
         command:
         - sh
         - -c
@@ -26,7 +26,11 @@ spec:
           git clone {{ .Values.content.gitUrl }} /tmp/repo
           cd /tmp/repo
           git checkout {{ .Values.content.gitRef }}
-          cp -r {{ .Values.content.contentPath }}/* /content/
+          cd {{ .Values.content.contentPath }}
+          # Build Antora site
+          antora site.yml --to-dir /content/html
+          # Ensure content is readable
+          chmod -R 755 /content/html
         volumeMounts:
         - name: content
           mountPath: /content
@@ -55,7 +59,8 @@ spec:
           value: "{{ .Values.userInfo.guid }}"
         volumeMounts:
         - name: content
-          mountPath: /app/content
+          mountPath: /var/www/html
+          subPath: html
           readOnly: true
         livenessProbe:
           httpGet:
