@@ -12,7 +12,7 @@ operators:
     namespace: openshift-operators
 
   web-terminal:
-    enabled: false
+    enabled: true
     name: web-terminal
     channel: fast
     source: redhat-operators
