@@ -40,27 +40,24 @@ operators:
 
 # Helm charts to deploy
 helmCharts:
-  # Showroom demo - Interactive demo content
+  # Showroom demo - Interactive demo content using official RHPDS chart
   showroom-demo:
     enabled: true
     namespace: showroom
     wave: 20
     source:
-      repoURL: https://github.com/slallemand/rhdp-field-content-demo.git
-      targetRevision: HEAD
-      path: components/showroom-demo
-    # Values are injected via special template - see note below
+      # Official RHPDS Showroom deployer Helm chart
+      repoURL: https://rhpds.github.io/showroom-deployer
+      chart: showroom
+      targetRevision: 1.0.0  # Use latest stable version
+    # Values for showroom-deployer chart
     valuesTemplate: |
-      deployer:
-        apiUrl: {{ .Values.deployer.apiUrl | quote }}
-        domain: {{ .Values.deployer.domain | quote }}
-      userInfo:
-        user: {{ .Values.userInfo.user | quote }}
-        password: {{ .Values.userInfo.password | quote }}
-        guid: {{ .Values.userInfo.guid | quote }}
-      content:
-        gitUrl: {{ .Values.gitUrl | quote }}
-        gitRef: {{ .Values.gitRef | quote }}
+      # Deploy the content from our Git repository
+      deploy:
+        name: rhdp-demo
+        url: {{ .Values.gitUrl | quote }}
+        ref: {{ .Values.gitRef | quote }}
+        path: showroom-content
 
   # Example: Node.js "Hello RHDP" application
   hello-nodejs:

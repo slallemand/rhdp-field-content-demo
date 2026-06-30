@@ -22,6 +22,15 @@ RHDP Field Content CI
                     └─► Secret (user credentials)
 ```
 
+## Official RHPDS Showroom Deployer
+
+This deployment uses the **official RHPDS Showroom deployer Helm chart** from `https://rhpds.github.io/showroom-deployer`.
+
+The chart automatically:
+- Builds the Antora site from Git repository
+- Creates BuildConfig, ImageStream, Deployment, Service, Route
+- Handles all OpenShift-specific configuration
+
 ## How It Works
 
 ### 1. RHDP Creates ArgoCD Application
@@ -60,23 +69,19 @@ The root chart (`Chart.yaml` + `values.yaml` + `templates/`) contains:
 helmCharts:
   showroom-demo:
     enabled: true
-    namespace: field-content-demo
+    namespace: showroom
     wave: 20
     source:
-      repoURL: https://github.com/slallemand/rhdp-field-content-demo.git
-      targetRevision: HEAD
-      path: components/showroom-demo
+      # Official RHPDS Showroom deployer Helm chart
+      repoURL: https://rhpds.github.io/showroom-deployer
+      chart: showroom
+      targetRevision: 1.0.0
     valuesTemplate: |
-      deployer:
-        apiUrl: {{ .Values.deployer.apiUrl | quote }}
-        domain: {{ .Values.deployer.domain | quote }}
-      userInfo:
-        user: {{ .Values.userInfo.user | quote }}
-        password: {{ .Values.userInfo.password | quote }}
-        guid: {{ .Values.userInfo.guid | quote }}
-      content:
-        gitUrl: {{ .Values.gitUrl | quote }}
-        gitRef: {{ .Values.gitRef | quote }}
+      deploy:
+        name: rhdp-demo
+        url: {{ .Values.gitUrl | quote }}
+        ref: {{ .Values.gitRef | quote }}
+        path: showroom-content
 ```
 
 **templates/helm-charts.yaml** automatically generates the ArgoCD Application from this configuration.
