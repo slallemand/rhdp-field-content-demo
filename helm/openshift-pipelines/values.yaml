@@ -1,0 +1,8 @@
+subscription:
+  channel: latest
+  installPlanApproval: Automatic
+  name: openshift-pipelines-operator-rh
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: ""
+  namespace: openshift-operators

@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openshift-pipelines
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/slallemand/rhdh-field-content-demo.git
+    targetRevision: HEAD
+    path: helm/openshift-pipelines
+    helm:
+      releaseName: openshift-pipelines
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openshift-operators
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
