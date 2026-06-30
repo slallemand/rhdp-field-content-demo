@@ -1,0 +1,26 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: {{ .Values.image.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.image.name }}
+    demo.redhat.com/application: "field-content"
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: {{ .Values.image.name }}:{{ .Values.image.tag }}
+  source:
+    type: Git
+    git:
+      uri: https://github.com/slallemand/rhdp-field-content-demo.git
+      ref: main
+    contextDir: charts/hello-nodejs/app
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange

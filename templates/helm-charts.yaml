@@ -1,4 +1,4 @@
-{{- range $name, $config := .Values.operators }}
+{{- range $name, $config := .Values.helmCharts }}
 {{- if $config.enabled }}
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -15,19 +15,18 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/slallemand/rhdp-field-content-demo.git
-    targetRevision: HEAD
-    path: operator-subscription
+    repoURL: {{ $config.source.repoURL }}
+    targetRevision: {{ $config.source.targetRevision }}
+    {{- if $config.source.path }}
+    path: {{ $config.source.path }}
+    {{- end }}
+    {{- if $config.source.chart }}
+    chart: {{ $config.source.chart }}
+    {{- end }}
+    {{- if $config.values }}
     helm:
-      parameters:
-        - name: name
-          value: {{ $config.name }}
-        - name: channel
-          value: {{ $config.channel }}
-        - name: source
-          value: {{ $config.source }}
-        - name: namespace
-          value: {{ $config.namespace }}
+      valuesObject: {{ toYaml $config.values | nindent 8 }}
+    {{- end }}
   destination:
     server: https://kubernetes.default.svc
     namespace: {{ $config.namespace }}
@@ -36,6 +35,6 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=false
+      - CreateNamespace=true
 {{- end }}
 {{- end }}

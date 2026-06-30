@@ -42,6 +42,7 @@ operators:
     channel: stable
     source: redhat-operators
     namespace: openshift-serverless
+    wave: 2  # Deploy order (0 = first)
 ```
 
 Commit, push - done! No need to create manifest files.
@@ -53,7 +54,8 @@ Commit, push - done! No need to create manifest files.
 ├── Chart.yaml                      # Root chart
 ├── values.yaml                     # Operator configuration
 ├── templates/
-│   └── applications.yaml          # Creates ArgoCD Applications (loop)
+│   ├── applications.yaml          # Creates ArgoCD Apps for operators (loop)
+│   └── helm-charts.yaml           # Creates ArgoCD Apps for Helm charts (loop)
 └── operator-subscription/          # Generic chart for OLM subscriptions
     ├── Chart.yaml
     ├── values.yaml
@@ -70,6 +72,64 @@ Commit, push - done! No need to create manifest files.
 5. Generic chart renders the OLM Subscription with those parameters
 
 **Result**: One generic chart, reused for all operators!
+
+## Sync Waves
+
+Control deployment order with `wave`:
+
+```yaml
+operators:
+  gitops:
+    wave: 0  # Deploy first
+  
+  pipelines:
+    wave: 1  # Deploy after GitOps is ready
+  
+  serverless:
+    wave: 2  # Deploy last
+```
+
+ArgoCD deploys in order: wave 0 → wave 1 → wave 2
+
+## Deploy Helm Charts
+
+You can also deploy any Helm chart:
+
+### From a Git repository (in this repo or external)
+
+```yaml
+helmCharts:
+  my-app:
+    enabled: true
+    namespace: demo
+    wave: 10
+    source:
+      repoURL: https://github.com/slallemand/rhdp-field-content-demo.git
+      targetRevision: HEAD
+      path: charts/my-app
+    values:  # Optional
+      replicas: 3
+      image: my-image:latest
+```
+
+### From a Helm repository
+
+```yaml
+helmCharts:
+  prometheus:
+    enabled: true
+    namespace: monitoring
+    wave: 20
+    source:
+      repoURL: https://prometheus-community.github.io/helm-charts
+      chart: prometheus
+      targetRevision: 15.0.0
+    values:
+      server:
+        retention: "30d"
+```
+
+Commit, push - ArgoCD deploys automatically!
 
 ## Testing
 

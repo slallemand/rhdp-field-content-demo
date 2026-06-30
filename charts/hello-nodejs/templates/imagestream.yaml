@@ -1,0 +1,11 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: {{ .Values.image.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.image.name }}
+    demo.redhat.com/application: "field-content"
+spec:
+  lookupPolicy:
+    local: false

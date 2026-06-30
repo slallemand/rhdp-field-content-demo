@@ -10,6 +10,7 @@ operators:
     channel: latest
     source: redhat-operators
     namespace: openshift-operators
+    wave: -20
 
   web-terminal:
     enabled: true
@@ -17,4 +18,42 @@ operators:
     channel: fast
     source: redhat-operators
     namespace: openshift-operators
+    wave: -20
 
+# Helm charts to deploy
+helmCharts:
+  # Example: Node.js "Hello RHDP" application
+  hello-nodejs:
+    enabled: false  # Set to true to deploy
+    namespace: hello-nodejs
+    wave: 10
+    source:
+      repoURL: https://github.com/slallemand/rhdp-field-content-demo.git
+      targetRevision: HEAD
+      path: charts/hello-nodejs
+    values:
+      replicas: 2
+
+  # Example: Deploy another chart from this repo
+  # my-app:
+  #   enabled: true
+  #   namespace: my-namespace
+  #   wave: 0
+  #   source:
+  #     repoURL: https://github.com/slallemand/rhdp-field-content-demo.git
+  #     targetRevision: HEAD
+  #     path: charts/my-app
+  #   values: {}  # Optional Helm values
+
+  # Example: Deploy a chart from a Helm repository
+  # prometheus:
+  #   enabled: true
+  #   namespace: monitoring
+  #   wave: 10
+  #   source:
+  #     repoURL: https://prometheus-community.github.io/helm-charts
+  #     chart: prometheus
+  #     targetRevision: 15.0.0
+  #   values:
+  #     server:
+  #       retention: "30d"

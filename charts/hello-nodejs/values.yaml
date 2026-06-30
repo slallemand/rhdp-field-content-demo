@@ -1,0 +1,6 @@
+namespace: hello-nodejs
+replicas: 1
+image:
+  name: hello-nodejs
+  tag: latest
+port: 8080

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: hello-nodejs
+description: Simple Node.js application that displays "hello RHDP field content"
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

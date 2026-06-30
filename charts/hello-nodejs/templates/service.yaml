@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.image.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.image.name }}
+    demo.redhat.com/application: "field-content"
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.port }}
+    targetPort: {{ .Values.port }}
+    protocol: TCP
+    name: http
+  selector:
+    app: {{ .Values.image.name }}
