@@ -1,0 +1,153 @@
+= Conclusion: Créez vos démos RHDP avec confiance
+:imagesdir: ../assets/images
+
+== Récapitulatif
+
+*Durée: ~2 minutes*
+
+Félicitations ! Vous avez découvert comment créer et déployer du contenu personnalisé sur Red Hat Demo Platform.
+
+== Ce que vous avez appris
+
+Au cours de cette démonstration de 20 minutes, vous avez exploré:
+
+=== 1. Architecture et GitOps (Module 1)
+
+* L'architecture RHDP et ses composants (AgnosticD, ArgoCD, Field Content CI)
+* Les flux de déploiement GitOps automatisés
+* Les deux patterns de déploiement: Direct et App of Apps
+* Les valeurs injectées automatiquement par RHDP
+
+=== 2. Provisionnement et déploiement (Module 2)
+
+* Provisionnement rapide de clusters OpenShift multi-cloud avec CNV
+* Structure d'un repository Field Content
+* Visualisation du déploiement dans ArgoCD UI
+* Démonstration du self-healing GitOps
+
+=== 3. Skills Marketplace et bonnes pratiques (Module 3)
+
+* Utilisation de skills réutilisables (Ansible roles et Helm charts)
+* Standards de qualité pour le contenu RHDP
+* Contribution au Skills Marketplace
+* Intégration avec Showroom pour labs interactifs
+
+== Messages clés à retenir
+
+[.tile]
+.Know
+****
+Rappelez ces 4 points essentiels à votre audience:
+
+. **Provisionnez rapidement** - Clusters OpenShift multi-cloud en quelques minutes avec CNV
+. **Automatisez le déploiement** - Field Source Content déploie via GitOps (Ansible/Helm)
+. **Réutilisez et partagez** - Skills Marketplace pour étendre vos démos
+. **GitOps simplifie tout** - Un repo Git = déploiement automatique sur RHDP
+****
+
+== Valeur métier
+
+[TIP]
+====
+**ROI pour les Solution Architects:**
+
+* **Gain de temps:** De plusieurs jours à quelques heures pour créer une démo
+* **Réutilisation:** Les skills peuvent être partagées entre équipes
+* **Cohérence:** GitOps garantit que la démo fonctionne toujours identiquement
+* **Scale:** Une démo peut être déployée simultanément pour des centaines de participants
+====
+
+== Prochaines étapes
+
+=== Actions immédiates
+
+[.tile]
+.Show
+****
+Guidez votre audience vers ces actions concrètes:
+
+. **Créez votre premier Field Content repository**
++
+* Forkez link:https://github.com/rhpds/field-sourced-content-template[le template officiel,window=_blank]
+* Ajoutez votre Helm chart ou Ansible role
+* Testez localement avec `helm template` et `helm lint`
+
+. **Commandez Field Content CI depuis le catalogue**
++
+* Rendez-vous sur link:https://catalog.demo.redhat.com/catalog/all?item=babylon-catalog-prod/published.ocp-field-asset.prod[catalog.demo.redhat.com,window=_blank]
+* Fournissez l'URL de votre repository
+* Observez le déploiement automatique via ArgoCD
+
+. **Explorez le Skills Marketplace**
++
+* Parcourez link:https://github.com/rhpds/rhdp-skills-marketplace[les skills disponibles,window=_blank]
+* Identifiez celles réutilisables pour vos démos
+* Contribuez vos propres skills
+****
+
+=== Ressources pour aller plus loin
+
+**Documentation officielle:**
+
+* link:https://github.com/agnosticd/core_workloads/tree/main/roles/ocp4_workload_field_content[Role ocp4_workload_field_content,window=_blank]
+* link:https://github.com/rhpds/field-sourced-content-template[Template Field Content,window=_blank]
+* link:https://github.com/rhpds/showroom_template_nookbag[Template Showroom (pour labs interactifs),window=_blank]
+
+**Exemples de référence:**
+
+* link:https://github.com/slallemand/rhdp-field-content-demo[Ce repository de démonstration,window=_blank]
+* link:https://github.com/rh-idp-lab/ansible[Exemple avec Ansible,window=_blank]
+
+**Support et communauté:**
+
+* RHDP Slack (demandez l'invitation à votre manager)
+* GitHub Discussions sur les repositories du Skills Marketplace
+
+== Questions & Réponses
+
+[.tile]
+.Know
+****
+**Questions fréquentes à anticiper:**
+
+**Q: Puis-je utiliser mes propres images de conteneurs ?**
+
+A: Oui ! Ajoutez-les dans votre Helm chart. RHDP déploie tout ce qui est dans votre repository. Assurez-vous que vos images sont sur un registry accessible (quay.io, DockerHub public, ou registry interne accessible).
+
+**Q: Que se passe-t-il si mon déploiement échoue ?**
+
+A: ArgoCD affiche les erreurs dans son UI. Les causes courantes : images inexistantes, RBAC insuffisant, ou label `demo.redhat.com/application: "field-content"` manquant. Vérifiez les logs ArgoCD et les events Kubernetes.
+
+**Q: Puis-je utiliser Ansible au lieu de Helm ?**
+
+A: Absolument ! Le role `ocp4_workload_field_content` supporte les deux. Helm est recommandé pour sa simplicité, mais Ansible offre plus de flexibilité pour les workflows complexes.
+
+**Q: Comment gérer les secrets (mots de passe, API keys) ?**
+
+A: Ne les committez JAMAIS dans Git. Utilisez des Secrets Kubernetes créés dynamiquement via Ansible, ou des External Secrets Operator. RHDP peut injecter des secrets pré-provisionnés si configurés dans AgnosticD.
+
+**Q: Combien de temps prend le provisionnement CNV ?**
+
+A: Généralement 3-5 minutes pour un cluster simple. Les clusters avec beaucoup de workers ou des configurations complexes peuvent prendre 10-15 minutes.
+****
+
+== Démonstration terminée
+
+[IMPORTANT]
+====
+**Point de clôture pour le présentateur:**
+
+Remerciez votre audience et rappelez que RHDP transforme la création de démos d'un processus manuel de plusieurs jours en un workflow GitOps automatisé de quelques heures.
+
+La vraie magie de RHDP n'est pas seulement la rapidité, mais la **reproductibilité** : une démo qui fonctionne une fois fonctionnera toujours, pour 1 personne ou 100 personnes.
+====
+
+Merci d'avoir suivi cette démonstration !
+
+== Feedback
+
+Vos retours sont précieux pour améliorer cette démonstration :
+
+* Ouvrez une issue sur link:https://github.com/slallemand/rhdp-field-content-demo/issues[GitHub,window=_blank]
+* Proposez des améliorations via Pull Request
+* Partagez vos success stories dans les channels Slack RHDP

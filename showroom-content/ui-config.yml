@@ -1,0 +1,9 @@
+catalog: demo
+terminal:
+  enabled: true
+  layout: split
+console:
+  enabled: true
+  url: "%openshift_console_url%"
+  title: OpenShift Console
+theme: redhat-2024

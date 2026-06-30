@@ -1,0 +1,8 @@
+// RHDP injected attributes
+// These values are automatically provided by Red Hat Demo Platform
+:ocp_version: 4.20
+:openshift_console_url: https://console-openshift-console.apps.cluster.example.com
+:user: admin
+:password: <provided_by_rhdp>
+:openshift_cluster_ingress_domain: apps.cluster.example.com
+:guid: <your-guid>

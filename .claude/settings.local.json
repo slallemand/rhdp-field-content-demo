@@ -4,7 +4,9 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(helm lint *)",
-      "Bash(helm template *)"
+      "Bash(helm template *)",
+      "Bash(mkdir -p showroom-content/content/modules/ROOT/pages)",
+      "Bash(mkdir -p showroom-content/content/modules/ROOT/assets/images)"
     ]
   }
 }

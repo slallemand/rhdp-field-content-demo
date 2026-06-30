@@ -1,6 +1,12 @@
-# RHDP Field Content - OLM Operators (App of Apps)
+# RHDP Field Content Demo
 
-Deploy OLM operators to RHDP clusters using GitOps and ArgoCD App of Apps pattern.
+Deploy operators, applications, and Showroom demo content to RHDP clusters using GitOps and ArgoCD App of Apps pattern.
+
+## What's Included
+
+✅ **OpenShift Operators** (Pipelines, Web Terminal)  
+✅ **Sample Applications** (Hello Node.js)  
+✅ **Showroom Demo Content** - Interactive "How to customise your own demo on RHDP" (20 min, French)
 
 ## Architecture
 
@@ -29,6 +35,23 @@ Subscriptions created with values from values.yaml
    - Order "Field Content CI" from RHDP catalog
    - Provide this repo URL
    - RHDP deploys automatically
+
+## What Gets Deployed
+
+When you deploy this repository to RHDP, it creates:
+
+1. **Operators** (sync wave -20):
+   - OpenShift Pipelines
+   - Web Terminal
+
+2. **Applications** (sync wave 10):
+   - Hello Node.js app (namespace: `hello-nodejs`)
+
+3. **Showroom Demo** (sync wave 20):
+   - Interactive demo content (namespace: `showroom`)
+   - Route: `https://showroom-demo-showroom.apps.<cluster-domain>`
+
+Access Showroom at the auto-generated route to view the interactive demo!
 
 ## Add a New Operator
 
@@ -91,7 +114,27 @@ operators:
 
 ArgoCD deploys in order: wave 0 → wave 1 → wave 2
 
-## Deploy Helm Charts
+## Add Your Own Content
+
+### Deploy Showroom Labs/Demos
+
+The included Showroom demo shows you how! You can:
+
+1. **Modify the existing demo:**
+   - Edit files in `showroom-content/content/modules/ROOT/pages/`
+   - Commit and push → ArgoCD auto-syncs
+
+2. **Add your own Showroom content:**
+   - Create a new Helm chart in `components/your-lab/`
+   - Add it to `values.yaml` under `helmCharts`
+   - See `components/showroom-demo/` as a reference
+
+3. **Learn more:**
+   - Deploy this repo to RHDP
+   - Access the Showroom demo content
+   - Follow the 20-minute guide!
+
+### Deploy Helm Charts
 
 You can also deploy any Helm chart:
 

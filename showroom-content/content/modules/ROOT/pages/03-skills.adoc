@@ -1,0 +1,452 @@
+= Module 3: Skills et bonnes pratiques
+:imagesdir: ../assets/images
+
+== Introduction
+
+*Durée: ~4 minutes*
+
+Ce module explore le RHDP Skills Marketplace et les bonnes pratiques pour créer du contenu de qualité professionnelle.
+
+== Objectifs d'apprentissage
+
+À la fin de ce module, vous serez capable de:
+
+* Comprendre le rôle du Skills Marketplace
+* Utiliser des skills pré-construites dans vos démos
+* Appliquer les bonnes pratiques de création de contenu
+* Partager vos propres skills avec la communauté
+
+== Points clés à démontrer
+
+[.tile]
+.Know
+****
+*Message clé:* Réutilisez et partagez - Skills Marketplace pour étendre vos démos
+
+Ne réinventez pas la roue! Le Skills Marketplace offre des composants réutilisables créés par la communauté RHDP. Intégrez des skills existantes dans vos démos et partagez les vôtres pour accélérer le travail de tous.
+****
+
+== Le Skills Marketplace
+
+=== Étape 1: Découvrir le Skills Marketplace
+
+[.tile]
+.Show
+****
+Ouvrez le repository: link:https://github.com/rhpds/rhdp-skills-marketplace[RHDP Skills Marketplace,window=_blank]
+
+La page d'accueil présente:
+
+* *Skills disponibles* - Liste des skills créées par la communauté
+* *Documentation* - Guide d'utilisation et de contribution
+* *Exemples* - Démos de référence utilisant les skills
+****
+
+[.tile]
+.Know
+****
+*Qu'est-ce qu'une Skill?*
+
+Une skill est un composant réutilisable qui peut:
+
+[cols="1,3"]
+|===
+|Type |Exemples
+
+|*Installation automatisée*
+|Déployer Kafka, PostgreSQL, AMQ Streams
+
+|*Configuration*
+|Configurer des pipelines Tekton, créer des secrets
+
+|*Données de démo*
+|Charger des datasets, créer des utilisateurs test
+
+|*Monitoring*
+|Installer Grafana dashboards, alertes Prometheus
+
+|*Nettoyage*
+|Scripts de teardown, suppression de ressources
+|===
+
+Chaque skill est un rôle Ansible ou un Helm chart prêt à l'emploi.
+****
+
+=== Étape 2: Explorer une skill existante
+
+[.tile]
+.Show
+****
+Parcourez les skills disponibles dans le repository:
+
+[source,text]
+----
+rhdp-skills-marketplace/
+├── skills/
+│   ├── install-kafka/
+│   │   ├── README.md
+│   │   ├── tasks/
+│   │   └── defaults/
+│   ├── configure-pipelines/
+│   │   ├── README.md
+│   │   ├── tasks/
+│   │   └── templates/
+│   └── load-sample-data/
+│       ├── README.md
+│       └── files/
+└── docs/
+    └── skills/
+----
+
+Sélectionnez une skill (ex: `install-kafka`) et ouvrez son `README.md`:
+****
+
+[.tile]
+.Know
+****
+Chaque skill contient:
+
+[cols="1,2"]
+|===
+|Fichier |Contenu
+
+|*README.md*
+|Documentation: usage, paramètres, prérequis
+
+|*tasks/main.yml*
+|Tâches Ansible à exécuter
+
+|*defaults/main.yml*
+|Valeurs par défaut des variables
+
+|*templates/*
+|Templates Kubernetes/Helm rendus par la skill
+
+|*files/*
+|Fichiers statiques déployés par la skill
+|===
+
+Les skills suivent une structure standardisée pour faciliter la réutilisation.
+****
+
+=== Étape 3: Intégrer une skill dans votre démo
+
+[.tile]
+.Show
+****
+Pour utiliser une skill dans votre Field Content, deux approches:
+
+*Approche 1: Rôle Ansible (via ocp4_workload_field_content)*
+
+Ajoutez dans votre `agnosticd` config:
+
+[source,yaml]
+----
+ocp4_workload_field_content_workloads:
+  - name: install-kafka
+    type: ansible
+    git_url: https://github.com/rhpds/rhdp-skills-marketplace.git
+    git_path: skills/install-kafka
+    vars:
+      kafka_namespace: kafka-demo
+      kafka_replicas: 3
+----
+
+*Approche 2: Helm chart (via ArgoCD Application)*
+
+Créez une ArgoCD Application dans `templates/`:
+
+[source,yaml]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kafka-skill
+  labels:
+    demo.redhat.com/application: "field-content"
+spec:
+  source:
+    repoURL: https://github.com/rhpds/rhdp-skills-marketplace
+    path: skills/install-kafka-helm
+    targetRevision: main
+  destination:
+    server: {{ .Values.deployer.apiUrl }}
+    namespace: kafka-demo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+----
+****
+
+[.tile]
+.Know
+****
+*Avantages d'utiliser les skills:*
+
+. *Gain de temps* - Ne réécrivez pas ce qui existe déjà
+. *Qualité testée* - Skills validées par la communauté
+. *Maintenance partagée* - Mises à jour centralisées
+. *Documentation* - README standardisé pour chaque skill
+. *Évolutivité* - Ajoutez facilement des fonctionnalités à vos démos
+****
+
+== Bonnes pratiques de création de contenu
+
+=== Étape 4: Standards de qualité
+
+[.tile]
+.Know
+****
+*Checklist de qualité pour vos Field Content:*
+
+[cols="1,3"]
+|===
+|Catégorie |Bonnes pratiques
+
+|*Structure*
+a|* Utilisez la structure template officielle
+* Séparez les composants dans `components/`
+* Helm charts au lieu de YAML statique
+
+|*GitOps*
+a|* Toutes les ArgoCD Apps ont le label `demo.redhat.com/application: "field-content"`
+* Utilisez `syncPolicy.automated` pour le sync automatique
+* `CreateNamespace=true` sur toutes les Applications
+
+|*Variables*
+a|* Utilisez `{{ .Values.deployer.apiUrl }}` et `{{ .Values.deployer.domain }}`
+* Ne hard-codez jamais des URLs ou domaines
+* Documentez toutes les variables dans `values.yaml`
+
+|*Tests*
+a|* Exécutez `helm lint` avant chaque commit
+* Testez avec `helm template` en local
+* Validez sur un cluster de dev avant production
+
+|*Documentation*
+a|* README.md à la racine expliquant le contenu
+* Showroom content pour les labs interactifs
+* Commentaires dans les templates Helm
+|===
+****
+
+=== Étape 5: Documentation Showroom (optionnel)
+
+[.tile]
+.Show
+****
+Si votre Field Content inclut un lab interactif, ajoutez un répertoire `showroom-content/`:
+
+[source,text]
+----
+showroom-content/
+├── site.yml              # Configuration Antora
+├── antora.yml            # Métadonnées du contenu
+├── ui-config.yml         # Configuration UI
+└── content/
+    └── modules/
+        └── ROOT/
+            ├── nav.adoc
+            └── pages/
+                ├── index.adoc
+                ├── 01-setup.adoc
+                ├── 02-deploy.adoc
+                └── 03-verify.adoc
+----
+
+Le workload `ocp4_workload_field_content` déploie automatiquement Showroom si ce répertoire existe.
+****
+
+[.tile]
+.Know
+****
+*Showroom offre:*
+
+[cols="1,2"]
+|===
+|Fonctionnalité |Avantage
+
+|*Instructions interactives*
+|Labs guidés avec vérification automatique
+
+|*Injection de variables*
+|URLs/credentials injectés dynamiquement
+
+|*Multi-modules*
+|Organisation en chapitres/modules
+
+|*Code snippets copiables*
+|Commandes copiables en un clic
+
+|*Images et diagrammes*
+|Support pour asciidoc, Mermaid, PlantUML
+|===
+
+Pour un exemple complet, voir: link:https://github.com/rh-idp-lab/ansible[rh-idp-lab/ansible,window=_blank]
+****
+
+=== Étape 6: Contribuer vos skills
+
+[.tile]
+.Show
+****
+Pour partager une skill avec la communauté RHDP:
+
+. Créez votre skill localement avec la structure standard
+. Documentez dans un `README.md`:
+  ** Description de la skill
+  ** Paramètres disponibles
+  ** Exemples d'utilisation
+  ** Prérequis
+. Testez sur un cluster RHDP
+. Ouvrez une Pull Request sur link:https://github.com/rhpds/rhdp-skills-marketplace[rhdp-skills-marketplace,window=_blank]
+. L'équipe RHDP review et merge
+****
+
+[.tile]
+.Know
+****
+*Pourquoi contribuer?*
+
+[cols="1,2"]
+|===
+|Raison |Bénéfice
+
+|*Visibilité*
+|Votre travail profite à toute la communauté Red Hat
+
+|*Maintenance partagée*
+|D'autres contributeurs améliorent votre skill
+
+|*Standardisation*
+|Tous utilisent les mêmes patterns éprouvés
+
+|*Reconnaissance*
+|Crédit pour vos contributions (CONTRIBUTING.md)
+|===
+
+[TIP]
+====
+Les skills les plus populaires sont souvent mises en avant dans les communications RHDP et peuvent devenir des composants officiels du catalogue.
+====
+****
+
+== Ressources pour aller plus loin
+
+[.tile]
+.Know
+****
+*Documentation de référence:*
+
+[cols="1,2,1"]
+|===
+|Ressource |Description |Lien
+
+|*Field Content Template*
+|Template officiel pour démarrer
+|link:https://github.com/rhpds/field-sourced-content-template[GitHub,window=_blank]
+
+|*ocp4_workload_field_content*
+|Documentation du workload RHDP
+|link:https://github.com/agnosticd/core_workloads/tree/main/roles/ocp4_workload_field_content[GitHub,window=_blank]
+
+|*Skills Marketplace*
+|Repository des skills communautaires
+|link:https://github.com/rhpds/rhdp-skills-marketplace[GitHub,window=_blank]
+
+|*Showroom Documentation*
+|Guide de création de contenu Showroom
+|link:https://github.com/rhpds/showroom-content[GitHub,window=_blank]
+
+|*Example: IDP Lab*
+|Exemple avancé avec Ansible + Showroom
+|link:https://github.com/rh-idp-lab/ansible[GitHub,window=_blank]
+|===
+****
+
+== Points de discussion
+
+[.tile]
+.Know
+****
+*Récapitulatif des messages clés:*
+
+. *Provisionnez rapidement* - Clusters OpenShift multi-cloud en minutes avec CNV
+. *Automatisez le déploiement* - Field Source Content déploie via GitOps (Ansible/Helm)
+. *Réutilisez et partagez* - Skills Marketplace pour étendre vos démos
+. *GitOps simplifie tout* - Un repo Git = déploiement automatique
+
+*Impact pour les Solution Architects:*
+
+* Réduction du temps de préparation de démo de plusieurs jours à quelques heures
+* Reproductibilité parfaite sur tous les clusters RHDP
+* Collaboration facilitée entre SAs via Git
+* Possibilité de créer des démos complexes multi-composants
+* Maintenance simplifiée via GitOps (pas de drift, pas de configuration manuelle)
+****
+
+== Vérification des connaissances
+
+[.tile]
+.Know
+****
+Questions finales pour valider la compréhension:
+
+. Citez trois types de skills disponibles dans le Marketplace
+  ** *Exemples:* Installation (Kafka), Configuration (Pipelines), Données (datasets)
+
+. Quelles sont les deux approches pour intégrer une skill?
+  ** *Réponse:* Rôle Ansible (via ocp4_workload) ou Helm chart (via ArgoCD App)
+
+. Pourquoi documenter son Field Content avec Showroom?
+  ** *Réponse:* Labs interactifs avec injection de variables et vérification automatique
+
+. Quel est l'avantage principal de contribuer au Skills Marketplace?
+  ** *Réponse:* Maintenance partagée et bénéfice pour toute la communauté
+****
+
+== Prochaines étapes
+
+[.tile]
+.Know
+****
+*Actions recommandées après cette démonstration:*
+
+. Explorez le link:https://catalog.demo.redhat.com/[catalogue RHDP,window=_blank] et commandez votre premier "Field Content CI"
+. Forkez le link:https://github.com/rhpds/field-sourced-content-template[template officiel,window=_blank] pour démarrer votre projet
+. Parcourez le link:https://github.com/rhpds/rhdp-skills-marketplace[Skills Marketplace,window=_blank] pour identifier des skills réutilisables
+. Rejoignez le canal Slack RHDP pour échanger avec la communauté
+. Créez votre première démo simple, puis itérez avec des skills avancées
+****
+
+== Conclusion
+
+Félicitations! Vous avez maintenant une compréhension complète de:
+
+* Comment provisionner rapidement des clusters avec CNV
+* La structure d'un projet Field Content
+* Le déploiement automatisé via GitOps et ArgoCD
+* L'utilisation et la contribution au Skills Marketplace
+* Les bonnes pratiques de création de contenu
+
+[.tile]
+.Know
+****
+*Message de clôture:*
+
+Red Hat Demo Platform transforme la création de démos d'un processus manuel et chronophage en un workflow GitOps automatisé et reproductible. En combinant CNV pour le provisionnement rapide, Field Content pour le déploiement automatisé, et le Skills Marketplace pour la réutilisation, vous pouvez créer des démos de niveau production en une fraction du temps habituel.
+
+N'hésitez pas à contribuer vos propres skills et à partager vos démos avec la communauté RHDP!
+****
+
+== Ressources de support
+
+* *Documentation RHDP:* Accès via Red Hat internal docs
+* *Slack:* Canal `#rhdp-field-content`
+* *Issues GitHub:* link:https://github.com/rhpds/field-sourced-content-template/issues[Signaler un problème,window=_blank]
+* *Exemples:* link:https://github.com/rhpds?q=field[Repositories RHDP,window=_blank]
+
+'''
+
+xref:index.adoc[← Retour à l'introduction]

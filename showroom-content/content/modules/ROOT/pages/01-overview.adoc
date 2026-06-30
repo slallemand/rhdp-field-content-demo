@@ -1,0 +1,432 @@
+= Architecture et Vue d'ensemble Technique
+:imagesdir: ../assets/images
+
+== Introduction
+
+Ce module présente l'architecture complète de Red Hat Demo Platform (RHDP) pour le déploiement de contenu personnalisé (Field Content). Vous découvrirez comment les différents composants interagissent pour permettre un déploiement GitOps automatisé.
+
+[.lead]
+*Objectifs d'apprentissage:*
+
+* Comprendre l'architecture globale de RHDP Field Content
+* Identifier les flux de déploiement GitOps
+* Découvrir les composants clés: ArgoCD, Helm, Ansible
+* Visualiser le cycle de vie complet d'une démo
+
+== Architecture Globale RHDP
+
+RHDP (Red Hat Demo Platform) est une plateforme d'automatisation qui permet aux Solution Architects de provisionner et déployer rapidement des environnements de démonstration complexes.
+
+=== Composants Principaux
+
+[cols="1,3", options="header"]
+|===
+| Composant | Rôle
+
+| *Catalog*
+| Interface utilisateur pour commander des environnements de démonstration
+
+| *AgnosticD/AgnosticV*
+| Moteur d'automatisation basé sur Ansible pour le provisionnement d'infrastructure
+
+| *ArgoCD*
+| Outil GitOps pour la synchronisation continue des applications Kubernetes
+
+| *Field Content CI*
+| Workload qui déploie votre contenu personnalisé depuis un repository Git
+
+| *Helm Charts*
+| Manifestes Kubernetes templatisés pour le déploiement des applications
+|===
+
+=== Flux de Déploiement
+
+[mermaid]
+....
+graph LR
+    A[Solution Architect] -->|Commander| B[RHDP Catalog]
+    B -->|Provisionner| C[AgnosticV/Ansible]
+    C -->|Créer| D[Cluster OpenShift + CNV]
+    C -->|Déployer| E[ArgoCD]
+    E -->|Sync| F[Git Repository]
+    F -->|Deploy| G[Helm Chart]
+    G -->|Créer| H[Applications]
+    style A fill:#e63946
+    style D fill:#457b9d
+    style E fill:#2a9d8f
+    style H fill:#e9c46a
+....
+
+== Comment Fonctionne Field Content CI
+
+Le workload *Field Content CI* est le pont entre votre repository Git et votre cluster OpenShift. Voici comment il opère:
+
+=== Étape 1: Commander depuis le Catalogue
+
+Lorsqu'un utilisateur commande "Field Content CI" depuis le catalogue RHDP, il fournit:
+
+[source,yaml]
+----
+# Paramètres de commande
+repository_url: https://github.com/votre-org/votre-demo
+repository_ref: main  # ou une branche spécifique
+----
+
+=== Étape 2: RHDP Crée l'Application ArgoCD
+
+RHDP déploie automatiquement une ArgoCD Application qui:
+
+[source,yaml]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: field-content
+  labels:
+    demo.redhat.com/application: "field-content"  # ← Label obligatoire
+spec:
+  source:
+    repoURL: https://github.com/votre-org/votre-demo
+    targetRevision: main
+    path: .  # Racine du repository
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: field-content
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+----
+
+[IMPORTANT]
+====
+Le label `demo.redhat.com/application: "field-content"` est *obligatoire*. RHDP l'utilise pour monitorer la santé de votre déploiement.
+====
+
+=== Étape 3: Déploiement du Helm Chart
+
+ArgoCD synchronise votre repository et déploie le Helm chart trouvé à la racine. RHDP injecte automatiquement les valeurs spécifiques au cluster:
+
+[source,yaml]
+----
+# Valeurs injectées automatiquement par RHDP
+deployer:
+  apiUrl: https://api.cluster-xyz.example.com:6443
+  domain: apps.cluster-xyz.example.com
+----
+
+Votre chart peut utiliser ces valeurs pour configurer les applications:
+
+[source,yaml]
+----
+# Dans templates/route.yaml
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: my-app
+spec:
+  host: my-app.{{ .Values.deployer.domain }}
+----
+
+== Deux Patterns de Déploiement
+
+Vous pouvez structurer votre Field Content selon deux approches principales:
+
+=== Pattern 1: Déploiement Direct
+
+Le Helm chart à la racine déploie directement les ressources Kubernetes.
+
+[source,plaintext]
+----
+votre-repo/
+├── Chart.yaml
+├── values.yaml
+└── templates/
+    ├── deployment.yaml
+    ├── service.yaml
+    └── route.yaml
+----
+
+*Avantages:*
+
+* Simple et direct
+* Idéal pour des démos monolithiques
+
+*Inconvénients:*
+
+* Difficile à modulariser
+* Tout dans un seul chart
+
+=== Pattern 2: App of Apps
+
+Le Helm chart à la racine crée des ArgoCD Applications supplémentaires qui pointent vers des charts de composants.
+
+[source,plaintext]
+----
+votre-repo/
+├── Chart.yaml               # Chart principal
+├── values.yaml
+├── templates/
+│   ├── app-frontend.yaml    # ArgoCD Application
+│   ├── app-backend.yaml     # ArgoCD Application
+│   └── app-database.yaml    # ArgoCD Application
+└── components/
+    ├── frontend/            # Chart Helm du frontend
+    │   ├── Chart.yaml
+    │   └── templates/
+    ├── backend/             # Chart Helm du backend
+    │   ├── Chart.yaml
+    │   └── templates/
+    └── database/            # Chart Helm de la base
+        ├── Chart.yaml
+        └── templates/
+----
+
+*Avantages:*
+
+* Modularité et réutilisabilité
+* Synchronisation indépendante des composants
+* Facilite les mises à jour partielles
+
+*Inconvénients:*
+
+* Structure plus complexe
+* Nécessite de bien comprendre ArgoCD
+
+[TIP]
+====
+Pour ce repository de démonstration, nous utilisons le *Pattern App of Apps* pour démontrer les meilleures pratiques.
+====
+
+== Cycle de Vie d'une Démo
+
+Comprenons maintenant le cycle de vie complet, de la création à la mise à jour:
+
+=== 1. Développement Local
+
+[source,bash]
+----
+# Valider votre chart
+helm lint .
+
+# Prévisualiser ce qui sera déployé
+helm template field-content . \
+  --set deployer.apiUrl=https://api.example.com:6443 \
+  --set deployer.domain=apps.example.com
+
+# Tester un composant spécifique
+helm template my-app components/my-app/
+----
+
+=== 2. Commit et Push
+
+[source,bash]
+----
+git add .
+git commit -m "Add new component"
+git push origin main
+----
+
+=== 3. Synchronisation Automatique
+
+ArgoCD détecte les changements et synchronise automatiquement:
+
+[source,plaintext]
+----
+[ArgoCD] Détection de changement dans main
+[ArgoCD] Récupération des manifestes
+[ArgoCD] Application des différences
+[ArgoCD] État: Healthy & Synced ✓
+----
+
+=== 4. Monitoring RHDP
+
+RHDP surveille la santé via le label `demo.redhat.com/application`:
+
+[source,bash]
+----
+# Vérifier les applications RHDP
+oc get applications -l demo.redhat.com/application=field-content
+
+# Vérifier le statut de santé
+oc get application field-content -o jsonpath='{.status.health.status}'
+----
+
+== Les Valeurs Clés Injectées
+
+RHDP injecte automatiquement des valeurs essentielles à votre chart. Voici les principales:
+
+[cols="1,2,2", options="header"]
+|===
+| Valeur | Description | Exemple
+
+| `deployer.apiUrl`
+| URL de l'API Kubernetes du cluster
+| `https://api.cluster-abc.redhat.com:6443`
+
+| `deployer.domain`
+| Domaine wildcard pour les routes OpenShift
+| `apps.cluster-abc.redhat.com`
+
+| `deployer.user`
+| Utilisateur qui a commandé l'environnement
+| `john.doe@redhat.com`
+
+| `deployer.uuid`
+| Identifiant unique de l'environnement
+| `a1b2c3d4-e5f6-7890-abcd-ef1234567890`
+|===
+
+[NOTE]
+====
+Ces valeurs sont injectées au moment du déploiement initial. Elles ne changent pas même si vous mettez à jour votre code Git.
+====
+
+== Bonnes Pratiques Architecture
+
+=== Labels Obligatoires
+
+Toutes les ArgoCD Applications créées par votre chart *doivent* inclure:
+
+[source,yaml]
+----
+metadata:
+  labels:
+    demo.redhat.com/application: "field-content"
+----
+
+=== Namespaces
+
+* Utilisez le namespace `field-content` comme base
+* Créez des namespaces supplémentaires si nécessaire
+* N'oubliez pas les permissions RBAC
+
+=== Gestion des Secrets
+
+Ne committez *jamais* de secrets dans Git. Utilisez plutôt:
+
+* OpenShift Secrets créés par vos templates
+* Vault (si disponible dans votre cluster)
+* Sealed Secrets pour GitOps sécurisé
+
+=== Health Checks
+
+Configurez les health checks pour que RHDP puisse monitorer votre démo:
+
+[source,yaml]
+----
+# Dans votre Deployment
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 5
+----
+
+== Exemple Pratique: Simple Application
+
+Voici un exemple minimal d'ArgoCD Application créée par votre chart:
+
+[source,yaml]
+----
+# templates/app-simple.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: simple-app
+  namespace: openshift-gitops
+  labels:
+    demo.redhat.com/application: "field-content"  # ← Obligatoire
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.repository.url }}
+    targetRevision: {{ .Values.repository.ref }}
+    path: components/simple-app
+    helm:
+      parameters:
+        - name: domain
+          value: {{ .Values.deployer.domain }}
+        - name: apiUrl
+          value: {{ .Values.deployer.apiUrl }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: simple-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+----
+
+== Debugging et Troubleshooting
+
+=== Vérifier l'État ArgoCD
+
+[source,bash]
+----
+# Lister toutes les applications
+oc get applications -n openshift-gitops
+
+# Voir les détails d'une application
+oc describe application field-content -n openshift-gitops
+
+# Voir les logs de synchronisation
+oc logs -n openshift-gitops -l app.kubernetes.io/name=argocd-application-controller
+----
+
+=== Problèmes Courants
+
+[cols="2,3,3", options="header"]
+|===
+| Problème | Cause | Solution
+
+| Application OutOfSync
+| Changements manuels dans le cluster
+| Laisser ArgoCD synchroniser ou supprimer les ressources manuelles
+
+| Application Degraded
+| Health checks échouent
+| Vérifier les logs des pods: `oc logs pod-name`
+
+| Label manquant
+| `demo.redhat.com/application` absent
+| Ajouter le label dans metadata.labels de l'Application
+
+| Helm template erreur
+| Syntaxe YAML invalide
+| Tester localement: `helm template . --debug`
+|===
+
+== Résumé
+
+Dans ce module, vous avez appris:
+
+* L'architecture globale de RHDP et Field Content CI
+* Les deux patterns de déploiement (Direct vs App of Apps)
+* Le cycle de vie complet d'une démo GitOps
+* Les valeurs injectées automatiquement par RHDP
+* Les bonnes pratiques d'architecture et de sécurité
+* Comment débugger les problèmes courants
+
+== Prochaine Étape
+
+Maintenant que vous comprenez l'architecture, passons à la pratique!
+
+Dans le xref:02-provisioning.adoc[Module 2], vous allez:
+
+* Provisionner un cluster OpenShift avec CNV
+* Déployer votre premier Field Content
+* Observer le déploiement GitOps en action
+
+[.text-center]
+xref:02-provisioning.adoc[Continuer vers le Module 2 →]

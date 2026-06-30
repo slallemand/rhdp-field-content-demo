@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "showroom-demo.fullname" . }}
+  labels:
+    {{- include "showroom-demo.labels" . | nindent 4 }}
+    demo.redhat.com/application: "field-content"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "showroom-demo.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "showroom-demo.selectorLabels" . | nindent 8 }}
+        demo.redhat.com/application: "field-content"
+    spec:
+      initContainers:
+      - name: git-clone
+        image: alpine/git:latest
+        command:
+        - sh
+        - -c
+        - |
+          git clone {{ .Values.content.gitUrl }} /tmp/repo
+          cd /tmp/repo
+          git checkout {{ .Values.content.gitRef }}
+          cp -r {{ .Values.content.contentPath }}/* /content/
+        volumeMounts:
+        - name: content
+          mountPath: /content
+      containers:
+      - name: showroom
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        env:
+        - name: OPENSHIFT_CONSOLE_URL
+          value: "https://console-openshift-console.apps.{{ .Values.deployer.domain }}"
+        - name: OPENSHIFT_API_URL
+          value: "{{ .Values.deployer.apiUrl }}"
+        - name: USER
+          value: "{{ .Values.userInfo.user }}"
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "showroom-demo.fullname" . }}-credentials
+              key: password
+              optional: true
+        - name: GUID
+          value: "{{ .Values.userInfo.guid }}"
+        volumeMounts:
+        - name: content
+          mountPath: /app/content
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+      - name: content
+        emptyDir: {}

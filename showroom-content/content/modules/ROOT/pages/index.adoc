@@ -1,0 +1,70 @@
+= Comment créer votre propre démo sur RHDP
+:imagesdir: ../assets/images
+
+include::_attributes.adoc[]
+
+== Vue d'ensemble
+
+Bienvenue dans cette démonstration sur la création et le déploiement de contenu personnalisé sur Red Hat Demo Platform (RHDP).
+
+[.lead]
+*Public cible:* Solution Architects
+
+[.lead]
+*Durée:* 20 minutes
+
+== Scénario métier
+
+Les Solution Architects ont besoin de créer et déployer rapidement des labs et démos personnalisées sur Red Hat Demo Platform pour répondre aux besoins spécifiques de leurs clients.
+
+Cette démonstration illustre comment RHDP simplifie ce processus grâce à:
+
+* *Provisionnement rapide* - Clusters OpenShift multi-cloud en minutes avec CNV
+* *Automatisation du déploiement* - Field Source Content déploie via GitOps (Ansible/Helm)
+* *Réutilisation et partage* - Skills Marketplace pour étendre vos démos
+* *Simplicité GitOps* - Un repo Git = déploiement automatique
+
+== Modules
+
+Cette démonstration est organisée en 3 modules:
+
+=== Module 1: Vue d'ensemble Technique (~6 min)
+Découvrez l'architecture RHDP et les flux de déploiement GitOps.
+
+xref:01-overview.adoc[Accéder au Module 1 →]
+
+=== Module 2: Provisionner avec CNV (~10 min)
+Découvrez comment provisionner rapidement des clusters OpenShift multi-cloud et déployer du Field Content.
+
+xref:02-provisioning.adoc[Accéder au Module 2 →]
+
+=== Module 3: Skills et bonnes pratiques (~4 min)
+Explorez le Skills Marketplace et les bonnes pratiques de création de contenu.
+
+xref:03-skills.adoc[Accéder au Module 3 →]
+
+== Prérequis techniques
+
+* OpenShift {ocp_version}
+* Accès administrateur au cluster
+* Connexion au cluster via la console web
+
+[TIP]
+====
+Vos informations d'accès:
+
+* *Console URL:* {openshift_console_url}
+* *Utilisateur:* {user}
+* *Mot de passe:* {password}
+====
+
+== Ressources de référence
+
+* link:https://catalog.demo.redhat.com/catalog/all?item=babylon-catalog-prod/published.ocp-field-asset.prod[Catalog RHDP - Field Content CI,window=_blank]
+* link:https://github.com/agnosticd/core_workloads/tree/main/roles/ocp4_workload_field_content[Documentation ocp4_workload_field_content,window=_blank]
+* link:https://github.com/slallemand/rhdp-field-content-demo[Repository de démonstration,window=_blank]
+* link:https://github.com/rhpds/rhdp-skills-marketplace[RHDP Skills Marketplace,window=_blank]
+
+== Commençons!
+
+Prêt à démarrer? Rendez-vous sur le xref:01-overview.adoc[Module 1] pour commencer la démonstration.

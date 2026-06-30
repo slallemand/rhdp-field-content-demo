@@ -1,0 +1,5 @@
+name: showroom
+title: Red Hat Demo Platform - Field Content Demo
+version: main
+nav:
+  - modules/ROOT/nav.adoc

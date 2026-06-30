@@ -1,0 +1,906 @@
+= Module 2: Provisionner avec OpenShift Virtualization (CNV)
+:imagesdir: ../assets/images
+
+== Introduction
+
+*Durée: ~10 minutes*
+
+Ce module vous guide à travers le processus de provisionnement d'un cluster OpenShift avec OpenShift Virtualization (CNV) et le déploiement de votre Field Content via GitOps.
+
+== Objectifs d'apprentissage
+
+À la fin de ce module, vous serez capable de:
+
+* Commander un item "Field Content CI" depuis le catalogue RHDP
+* Comprendre le rôle de CNV dans le provisionnement rapide
+* Explorer la structure d'un projet Field Content
+* Visualiser le déploiement GitOps dans ArgoCD UI
+* Tester le flux GitOps end-to-end
+
+== Points clés à démontrer
+
+[.tile]
+.Know
+****
+*Messages clés de ce module:*
+
+. *Provisionnez rapidement* - Clusters OpenShift multi-cloud en minutes avec CNV
+. *Automatisez le déploiement* - Field Source Content déploie via GitOps (Ansible/Helm)
+
+OpenShift Virtualization (CNV) transforme le provisionnement d'un cluster de plusieurs heures à quelques minutes. Combiné avec GitOps, vous obtenez un environnement de démo entièrement automatisé de bout en bout.
+****
+
+== Partie 1: Provisionnement avec CNV
+
+=== Étape 1: Accéder au catalogue RHDP
+
+[.tile]
+.Show
+****
+. Ouvrez le link:https://catalog.demo.redhat.com/catalog/all[catalogue RHDP,window=_blank]
+. Connectez-vous avec vos identifiants Red Hat SSO
+. Dans la barre de recherche, tapez "Field Content CI"
+. Ou naviguez directement: link:https://catalog.demo.redhat.com/catalog/all?item=babylon-catalog-prod/published.ocp-field-asset.prod[Field Content CI,window=_blank]
+****
+
+[.tile]
+.Know
+****
+Le catalogue RHDP centralise tous les labs, démonstrations et environnements disponibles. L'item "Field Content CI" est spécialement conçu pour déployer du contenu personnalisé depuis un repository Git.
+
+*Pourquoi "CI" dans le nom?*
+
+Cet item suit le modèle d'intégration continue:
+
+* *Source de vérité:* Votre repository Git
+* *Build:* Helm chart rendering par ArgoCD
+* *Deploy:* Synchronisation automatique sur le cluster
+* *Test:* Health checks ArgoCD
+* *Rollback:* `git revert` si nécessaire
+****
+
+=== Étape 2: Commander Field Content CI
+
+[.tile]
+.Show
+****
+. Cliquez sur l'item *"Field Content CI"* dans les résultats
+. Sur la page de détail, cliquez sur *Order*
+. Dans le formulaire de commande, remplissez:
+
+[cols="1,2"]
+|===
+|Champ |Valeur
+
+|*Repository URL*
+|`https://github.com/slallemand/rhdp-field-content-demo`
+
+|*Repository Reference*
+|`main` (ou une branche spécifique)
+
+|*Region*
+|Sélectionnez votre région préférée (ex: `na`)
+
+|*Runtime*
+|Durée de vie du cluster (ex: `8 hours` pour une démo)
+|===
+
+[start=4]
+. Cliquez sur *Submit* pour lancer le provisionnement
+****
+
+[.tile]
+.Know
+****
+*Ce qui se passe en arrière-plan après Submit:*
+
+[cols="1,3,1"]
+|===
+|Étape |Action |Durée
+
+|*1. Validation*
+|RHDP vérifie que le repository Git est accessible
+|~30s
+
+|*2. Provisioning*
+|Cluster OpenShift créé via CNV
+|~10-15 min
+
+|*3. Installation*
+|ArgoCD installé automatiquement
+|~2 min
+
+|*4. Workload deployment*
+|`ocp4_workload_field_content` exécuté
+|~1-2 min
+
+|*5. GitOps sync*
+|ArgoCD synchronise votre repository
+|~1-2 min
+
+|*6. Application ready*
+|Vos applications déployées et healthy
+|~1-3 min
+|===
+
+*Total: ~15-25 minutes* selon la complexité de votre Field Content.
+
+[NOTE]
+====
+Comparez avec un provisionnement cloud traditionnel (AWS, Azure): 2-4 heures. CNV divise ce temps par 10!
+====
+****
+
+=== Étape 3: Suivre le provisionnement
+
+[.tile]
+.Show
+****
+. Depuis le catalogue, cliquez sur l'onglet *Services* en haut
+. Vous verrez votre commande dans la liste avec son statut:
+  ** *Provisioning* - Cluster en cours de création
+  ** *Running* - Cluster prêt, applications en cours de déploiement
+  ** *Ready* - Tout est opérationnel
+. Cliquez sur le service pour voir les détails et les logs en temps réel
+****
+
+[TIP]
+====
+Pendant le provisionnement (15-20 minutes), c'est le moment idéal pour:
+
+* Expliquer l'architecture RHDP aux participants (xref:01-overview.adoc[Module 1])
+* Montrer la structure du repository Git
+* Discuter des use cases client
+* Répondre aux questions
+====
+
+=== Étape 4: Accéder au cluster provisionné
+
+[.tile]
+.Show
+****
+Une fois le statut *Ready*, dans les détails du service:
+
+. Notez les informations d'accès:
++
+[cols="1,2"]
+|===
+|Information |Usage
+
+|*OpenShift Console URL*
+|Interface web OpenShift
+
+|*Username / Password*
+|Identifiants admin du cluster
+
+|*ArgoCD URL*
+|(si exposé) Interface ArgoCD UI
+
+|*API URL*
+|Pour `oc login` CLI
+
+|*Kubeconfig*
+|Téléchargeable pour accès CLI
+|===
+
+[start=2]
+. Cliquez sur le lien *OpenShift Console*
+. Connectez-vous avec les identifiants fournis
+. Vérifiez que vous êtes admin: votre nom d'utilisateur doit afficher (admin)
+****
+
+[.tile]
+.Know
+****
+Vous disposez maintenant d'un cluster OpenShift entièrement fonctionnel avec:
+
+* ✅ Accès administrateur complet (`cluster-admin`)
+* ✅ ArgoCD installé et configuré dans `openshift-gitops`
+* ✅ Votre Field Content déployé automatiquement depuis Git
+* ✅ Applications en cours d'exécution et monitorées
+* ✅ Auto-destruction programmée (fin de runtime)
+
+Tout cela en *15-20 minutes* au lieu de plusieurs heures!
+****
+
+== Partie 2: Explorer le Field Content déployé
+
+=== Étape 5: Structure du repository
+
+[.tile]
+.Show
+****
+Ouvrez le repository link:https://github.com/slallemand/rhdp-field-content-demo[rhdp-field-content-demo,window=_blank] dans un nouvel onglet.
+
+Explorez la structure:
+
+[source,text]
+----
+rhdp-field-content-demo/
+├── Chart.yaml              # Helm chart principal (root)
+├── values.yaml             # Valeurs par défaut + RHDP injectées
+├── templates/              # Templates ArgoCD Applications
+│   └── application.yaml    # Crée l'app "simple-app"
+├── components/             # Charts de composants individuels
+│   └── simple-app/
+│       ├── Chart.yaml
+│       ├── values.yaml
+│       └── templates/
+│           ├── deployment.yaml
+│           ├── service.yaml
+│           └── route.yaml
+└── showroom-content/       # Contenu de documentation (ce guide!)
+    ├── site.yml
+    ├── antora.yml
+    └── content/
+----
+****
+
+[.tile]
+.Know
+****
+*Pattern App of Apps en action:*
+
+. *Niveau 1 (root):* Chart Helm principal
+  ** Déployé automatiquement par RHDP via ArgoCD
+  ** Crée des ArgoCD Applications enfants
+
+. *Niveau 2 (templates/):* ArgoCD Applications
+  ** Chaque fichier dans `templates/` = une Application ArgoCD
+  ** Pointe vers un composant dans `components/`
+
+. *Niveau 3 (components/):* Charts de composants
+  ** Chaque sous-répertoire = un composant indépendant
+  ** Déployé par son ArgoCD Application parente
+
+*Avantages:*
+
+* Modularité: composants déployables indépendamment
+* Réutilisabilité: un composant peut être référencé par plusieurs démos
+* Flexibilité: ajoutez/supprimez des composants sans tout reconstruire
+****
+
+=== Étape 6: Examiner le Chart principal
+
+[.tile]
+.Show
+****
+Ouvrez `Chart.yaml` à la racine:
+
+[source,yaml]
+----
+apiVersion: v2
+name: field-content
+description: RHDP Field Content Demo
+type: application
+version: 1.0.0
+appVersion: "1.0"
+----
+
+Ouvrez `values.yaml`:
+
+[source,yaml]
+----
+deployer:
+  apiUrl: ""      # ← Injecté par RHDP
+  domain: ""      # ← Injecté par RHDP
+
+repository:
+  url: https://github.com/slallemand/rhdp-field-content-demo
+  ref: main
+----
+****
+
+[.tile]
+.Know
+****
+*Valeurs injectées automatiquement par RHDP:*
+
+[WARNING]
+====
+Les valeurs `deployer.apiUrl` et `deployer.domain` sont vides dans Git, car elles sont injectées dynamiquement par RHDP au moment du déploiement.
+
+Exemples de valeurs injectées:
+
+* `deployer.apiUrl`: `https://api.cluster-abc123.example.com:6443`
+* `deployer.domain`: `apps.cluster-abc123.example.com`
+
+Ces valeurs changent pour chaque cluster provisionné - ne les hard-codez JAMAIS dans Git!
+====
+
+*Comment RHDP injecte ces valeurs:*
+
+Le workload `ocp4_workload_field_content` crée l'ArgoCD Application avec:
+
+[source,yaml]
+----
+spec:
+  source:
+    helm:
+      values: |
+        deployer:
+          apiUrl: {{ ocp_api_url }}
+          domain: {{ ocp_apps_domain }}
+----
+
+Ansible résout ces variables à partir de l'inventaire du cluster provisionné.
+****
+
+=== Étape 7: Examiner l'ArgoCD Application template
+
+[.tile]
+.Show
+****
+Ouvrez `templates/application.yaml`:
+
+[source,yaml]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: simple-app
+  namespace: openshift-gitops
+  labels:
+    demo.redhat.com/application: "field-content"  # ← Label OBLIGATOIRE
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.repository.url }}
+    targetRevision: {{ .Values.repository.ref }}
+    path: components/simple-app                   # ← Pointe vers le composant
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: {{ .Values.deployer.apiUrl }}         # ← Valeur RHDP injectée
+    namespace: simple-app
+  syncPolicy:
+    automated:
+      prune: true                                  # ← Supprime ressources obsolètes
+      selfHeal: true                               # ← Corrige les drifts
+    syncOptions:
+      - CreateNamespace=true                       # ← Crée le namespace automatiquement
+----
+****
+
+[.tile]
+.Know
+****
+*Décortiquons les éléments clés:*
+
+[cols="1,3"]
+|===
+|Élément |Explication
+
+|`labels.demo.redhat.com/application`
+|*OBLIGATOIRE* pour monitoring RHDP et cleanup automatique
+
+|`source.repoURL`
+|Templated avec `{{ .Values.repository.url }}` pour réutilisabilité
+
+|`source.path`
+|Pointe vers `components/simple-app` - le sous-chart à déployer
+
+|`destination.server`
+|Utilise `{{ .Values.deployer.apiUrl }}` injecté par RHDP
+
+|`syncPolicy.automated.prune`
+|Supprime automatiquement les ressources supprimées de Git
+
+|`syncPolicy.automated.selfHeal`
+|Restaure l'état Git si modification manuelle (`oc edit`)
+
+|`syncOptions.CreateNamespace`
+|ArgoCD crée le namespace s'il n'existe pas
+|===
+
+[IMPORTANT]
+====
+Le label `demo.redhat.com/application: "field-content"` sert à:
+
+. *Health monitoring:* RHDP surveille les Applications avec ce label
+. *Auto-cleanup:* À la fin de vie du cluster, RHDP supprime toutes les ressources labellisées
+. *Metrics:* Statistiques de déploiement et d'utilisation
+====
+****
+
+=== Étape 8: Examiner un composant
+
+[.tile]
+.Show
+****
+Explorez `components/simple-app/`:
+
+[source,text]
+----
+components/simple-app/
+├── Chart.yaml
+├── values.yaml
+└── templates/
+    ├── deployment.yaml
+    ├── service.yaml
+    └── route.yaml
+----
+
+Ouvrez `components/simple-app/templates/route.yaml`:
+
+[source,yaml]
+----
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: simple-app
+  namespace: simple-app
+spec:
+  host: simple-app.{{ .Values.deployer.domain }}  # ← Domaine dynamique
+  to:
+    kind: Service
+    name: simple-app
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+----
+****
+
+[.tile]
+.Know
+****
+Notez comment `{{ .Values.deployer.domain }}` est utilisé pour générer automatiquement l'URL de la Route.
+
+*Résultat après rendering:*
+
+Si `deployer.domain = apps.cluster-abc123.example.com`, la Route sera:
+
+[source,yaml]
+----
+spec:
+  host: simple-app.apps.cluster-abc123.example.com
+----
+
+*Pourquoi c'est génial:*
+
+. Même code fonctionne sur *tous* les clusters RHDP
+. Aucun hard-coding d'URLs
+. Pas de configuration manuelle post-déploiement
+. Reproductibilité parfaite
+
+[TIP]
+====
+Vous pouvez transmettre `deployer.domain` à n'importe quel niveau de la hiérarchie Helm via `values.yaml` ou `helm.parameters` dans l'ArgoCD Application.
+====
+****
+
+== Partie 3: Visualiser le déploiement GitOps
+
+=== Étape 9: Accéder à ArgoCD UI
+
+[.tile]
+.Show
+****
+Dans la console OpenShift:
+
+. Allez dans *Networking* → *Routes*
+. Sélectionnez le projet *openshift-gitops* dans le dropdown
+. Trouvez la route *openshift-gitops-server*
+. Cliquez sur l'URL (icône de lien externe)
+. Sur la page de login ArgoCD, cliquez sur *LOG IN VIA OPENSHIFT*
+. Authentifiez-vous avec vos identifiants OpenShift
+****
+
+[.tile]
+.Know
+****
+ArgoCD UI est l'interface centrale pour visualiser et gérer vos déploiements GitOps.
+
+*Permissions ArgoCD:*
+
+Le workload `ocp4_workload_field_content` configure automatiquement:
+
+[source,yaml]
+----
+# RoleBinding créé par le workload
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argocd-openshift-gitops-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: openshift-gitops-argocd-application-controller
+    namespace: openshift-gitops
+----
+
+ArgoCD dispose donc de permissions `cluster-admin` pour déployer n'importe quelle ressource.
+****
+
+=== Étape 10: Explorer les Applications ArgoCD
+
+[.tile]
+.Show
+****
+Dans ArgoCD UI, vous verrez plusieurs Applications:
+
+[cols="1,2,1"]
+|===
+|Application |Description |Créée par
+
+|*field-content*
+|Application racine pointant vers le root du repo
+|RHDP (ocp4_workload_field_content)
+
+|*simple-app*
+|Application enfant déployant le composant
+|Votre chart (templates/application.yaml)
+|===
+
+Cliquez sur *simple-app*:
+
+. *Health Status:* Devrait afficher *Healthy* (vert)
+. *Sync Status:* Devrait afficher *Synced* (vert)
+. *Last Sync:* Timestamp de la dernière synchronisation
+
+Cliquez sur *APP DETAILS* pour voir:
+
+. Source: repository URL, branch, path
+. Destination: cluster, namespace
+. Sync Policy: automated, prune, selfHeal
+****
+
+[.tile]
+.Know
+****
+*Comprendre les statuts ArgoCD:*
+
+[cols="1,2,2"]
+|===
+|Statut |Signification |Action
+
+|*Healthy + Synced*
+|✅ Tout va bien
+|Aucune
+
+|*Healthy + OutOfSync*
+|App fonctionne mais Git a changé
+|ArgoCD va synchroniser automatiquement sous peu
+
+|*Progressing + Synced*
+|Déploiement en cours
+|Attendre la fin du rollout
+
+|*Degraded + Synced*
+|Code Git déployé mais pods crashent
+|Vérifier les logs: `oc logs <pod>`
+
+|*Unknown*
+|ArgoCD ne peut pas déterminer la santé
+|Vérifier les ressources manquantes (Health check absent)
+|===
+
+[NOTE]
+====
+Avec `syncPolicy.automated.selfHeal: true`, si vous modifiez une ressource manuellement (`oc edit deployment simple-app`), ArgoCD détecte le drift et restaure l'état Git en quelques secondes.
+
+Essayez-le en live pour démontrer le self-healing!
+====
+****
+
+=== Étape 11: Visualiser les ressources déployées
+
+[.tile]
+.Show
+****
+Dans ArgoCD UI, sur l'Application *simple-app*:
+
+. Cliquez sur l'onglet central pour voir le graphe de ressources
+. Vous verrez une visualisation des ressources déployées:
+
+[source,text]
+----
+┌───────────────┐
+│  Application  │
+│  simple-app   │
+└───────┬───────┘
+        │
+        ├──→ Namespace: simple-app
+        │
+        ├──→ Deployment: simple-app
+        │    └──→ ReplicaSet
+        │         └──→ Pod (1/1 running)
+        │
+        ├──→ Service: simple-app
+        │
+        └──→ Route: simple-app
+----
+
+[start=3]
+. Cliquez sur chaque ressource pour voir ses détails
+. Cliquez sur le Pod pour voir les logs en temps réel
+****
+
+[.tile]
+.Know
+****
+*Avantages de la visualisation ArgoCD:*
+
+. *Vue d'ensemble rapide:* Toute l'architecture d'un coup d'œil
+. *Debugging visuel:* Les ressources en erreur sont rouges
+. *Navigation intuitive:* Cliquez pour driller down dans les détails
+. *Logs intégrés:* Pas besoin de `oc logs`, tout dans ArgoCD UI
+. *Events timeline:* Historique des synchronisations et changements
+
+[TIP]
+====
+Pour les démos client, ArgoCD UI est *beaucoup* plus impactant visuellement que `oc get pods`. Utilisez-le pour montrer la puissance du GitOps!
+====
+****
+
+== Partie 4: Tester le flux GitOps
+
+=== Étape 12: Modifier le code et observer la synchronisation
+
+[.tile]
+.Show
+****
+Démontrons le flux GitOps complet en temps réel.
+
+*Option A: Via GitHub UI (plus simple pour la démo)*
+
+. Ouvrez link:https://github.com/slallemand/rhdp-field-content-demo/blob/main/components/simple-app/values.yaml[simple-app/values.yaml,window=_blank] dans GitHub
+. Cliquez sur l'icône *Edit* (crayon)
+. Changez `replicaCount: 1` → `replicaCount: 2`
+. Scrollez en bas, ajoutez un commit message: "Scale simple-app to 2 replicas"
+. Cliquez sur *Commit changes*
+
+*Option B: Via Git CLI (pour les SA qui préfèrent le terminal)*
+
+[source,bash,role="execute"]
+----
+# Cloner le repo (ou fork si lecture seule)
+git clone https://github.com/slallemand/rhdp-field-content-demo.git
+cd rhdp-field-content-demo
+
+# Modifier le fichier
+vi components/simple-app/values.yaml
+# Changer replicaCount: 1 → replicaCount: 2
+
+# Committer et pusher
+git add components/simple-app/values.yaml
+git commit -m "Scale simple-app to 2 replicas"
+git push origin main
+----
+****
+
+[.tile]
+.Know
+****
+*Ce qui se passe après le Git push:*
+
+[cols="1,3,1"]
+|===
+|Temps |Action |Acteur
+
+|t+0s
+|Commit pushé sur GitHub
+|Vous
+
+|t+0-180s
+|ArgoCD poll le repository (intervalle par défaut: 3 min)
+|ArgoCD
+
+|t+180s
+|ArgoCD détecte le changement dans `components/simple-app/values.yaml`
+|ArgoCD
+
+|t+181s
+|ArgoCD compare l'état Git vs l'état cluster (OutOfSync détecté)
+|ArgoCD
+
+|t+182s
+|ArgoCD lance la synchronisation automatique (`syncPolicy.automated`)
+|ArgoCD
+
+|t+183s
+|Helm chart re-rendered avec `replicaCount: 2`
+|ArgoCD (Helm)
+
+|t+184s
+|Deployment `simple-app` mis à jour: `spec.replicas: 2`
+|ArgoCD (kubectl apply)
+
+|t+185s
+|Kubernetes crée un deuxième Pod
+|Kubernetes
+
+|t+200s
+|Pod #2 passe à *Running*, Application passe à *Healthy + Synced*
+|Kubernetes + ArgoCD
+|===
+
+[NOTE]
+====
+Vous pouvez réduire l'intervalle de polling d'ArgoCD de 3 minutes à 1 minute ou moins, mais cela augmente la charge sur le cluster. Pour une démo, 3 minutes est acceptable.
+
+Ou utilisez *ArgoCD Refresh* pour forcer la synchronisation immédiate (bouton dans l'UI).
+====
+****
+
+=== Étape 13: Observer la synchronisation dans ArgoCD
+
+[.tile]
+.Show
+****
+. Retournez dans ArgoCD UI, sur l'Application *simple-app*
+. Attendez jusqu'à 3 minutes (ou cliquez sur *Refresh* pour forcer)
+. Observez les changements:
+  ** Statut passe à *OutOfSync* brièvement
+  ** Puis à *Synced* + *Progressing*
+  ** Enfin à *Synced* + *Healthy*
+. Dans le graphe de ressources:
+  ** Le Deployment montre `2/2` replicas
+  ** Deux Pods apparaissent sous le ReplicaSet
+. Cliquez sur *APP HISTORY* pour voir l'historique des syncs avec le commit message
+****
+
+[.tile]
+.Know
+****
+*Points à souligner pendant la démo:*
+
+. *Zero intervention manuelle:* Aucune commande `oc` exécutée
+. *Traçabilité complète:* Commit message visible dans l'historique ArgoCD
+. *Reproductibilité:* Même résultat sur n'importe quel cluster
+. *Rollback facile:* `git revert` suffit pour annuler
+. *Audit trail:* Git log + ArgoCD history = audit complet
+
+[TIP]
+====
+Pour un impact maximal en démo client, faites la modification Git pendant que vous expliquez l'architecture, puis switchez vers ArgoCD UI pile au moment où la sync se produit. Le "wow effect" est garanti!
+====
+****
+
+=== Étape 14: Démontrer le self-healing
+
+[.tile]
+.Show
+****
+Démontrons maintenant le self-healing d'ArgoCD.
+
+*Dans la console OpenShift:*
+
+. Allez dans *Workloads* → *Deployments*
+. Sélectionnez le projet *simple-app*
+. Cliquez sur le Deployment *simple-app*
+. Cliquez sur *YAML* (onglet en haut)
+. Trouvez `spec.replicas: 2` et modifiez à `spec.replicas: 3`
+. Cliquez sur *Save*
+
+*Dans ArgoCD UI:*
+
+. Observez l'Application *simple-app*
+. Après quelques secondes (max 30s), vous verrez:
+  ** Statut passe brièvement à *OutOfSync*
+  ** ArgoCD détecte le drift (Git dit 2, cluster a 3)
+  ** Avec `selfHeal: true`, ArgoCD restaure automatiquement à 2 replicas
+  ** Statut retourne à *Synced* + *Healthy*
+
+*Résultat:* Le 3ème Pod est supprimé automatiquement, retour à 2 replicas.
+****
+
+[.tile]
+.Know
+****
+*Pourquoi le self-healing est critique:*
+
+[cols="1,2,2"]
+|===
+|Scénario |Sans self-heal |Avec self-heal
+
+|SA modifie en live pour debug
+|Drift non détecté, incohérence
+|Drift détecté et corrigé auto
+
+|Client demande un changement urgent
+|`oc edit`, oubli de committer
+|Forcé de passer par Git
+
+|Erreur humaine (`oc delete`)
+|Ressource supprimée définitivement
+|Ressource recréée automatiquement
+
+|Script automatisé bugué
+|Modifications anarchiques
+|Restauration continue de l'état Git
+|===
+
+*Message clé:* Git est la source de vérité unique. Toute modification en dehors de Git est temporaire.
+
+[IMPORTANT]
+====
+Dans un environnement de production, `selfHeal` peut être trop agressif (empêche le debug en live). Pour RHDP, c'est idéal car:
+
+. Environnements éphémères (durée de vie courte)
+. Objectif = démo reproductible
+. Évite les drifts accidentels avant une démo client
+====
+****
+
+== Vérification des connaissances
+
+[.tile]
+.Know
+****
+Posez ces questions aux participants pour valider la compréhension:
+
+. Combien de temps prend le provisionnement d'un cluster avec CNV?
+  ** *Réponse:* 15-25 minutes (vs 2-4 heures avec cloud traditionnel)
+
+. Quelles sont les deux valeurs injectées automatiquement par RHDP dans values.yaml?
+  ** *Réponse:* `deployer.apiUrl` et `deployer.domain`
+
+. Quel est le label obligatoire sur les ArgoCD Applications?
+  ** *Réponse:* `demo.redhat.com/application: "field-content"`
+
+. Que se passe-t-il si vous modifiez un Deployment avec `oc edit` quand `selfHeal: true`?
+  ** *Réponse:* ArgoCD détecte le drift et restaure l'état Git automatiquement
+
+. Comment déclencher une mise à jour de votre démo déployée?
+  ** *Réponse:* Modifier le code dans Git, committer, pusher → ArgoCD sync automatique
+
+. Quel est l'intervalle de polling par défaut d'ArgoCD?
+  ** *Réponse:* 3 minutes (configurable)
+****
+
+== Points de discussion avancés
+
+[.tile]
+.Know
+****
+*Pour les participants expérimentés:*
+
+. *Branching strategy:* Comment gérer dev/staging/prod avec GitOps?
+  ** *Approche:* Branches Git (`dev`, `staging`, `main`) + ArgoCD Applications par environnement
+
+. *Secrets management:* Comment gérer les secrets sans les committer?
+  ** *Solutions:* Sealed Secrets, External Secrets Operator, Vault
+
+. *Multi-cluster:* Comment déployer la même démo sur plusieurs clusters?
+  ** *Approche:* ArgoCD ApplicationSet avec générateurs (git, cluster, list)
+
+. *Rollback strategy:* Que faire si une sync introduit un bug?
+  ** *Solution rapide:* `git revert` + push
+  ** *Solution chirurgicale:* ArgoCD UI → History → Rollback to previous revision
+
+. *Monitoring:* Comment surveiller la santé de mes démos déployées?
+  ** *RHDP:* Health checks automatiques via le label `demo.redhat.com/application`
+  ** *Custom:* Prometheus + Grafana, alertes sur statut ArgoCD
+****
+
+== Résumé
+
+Dans ce module, vous avez:
+
+. ✅ Provisionné un cluster OpenShift en 15-25 minutes avec CNV
+. ✅ Compris comment RHDP injecte `deployer.apiUrl` et `deployer.domain`
+. ✅ Exploré la structure d'un projet Field Content (App of Apps pattern)
+. ✅ Visualisé le déploiement GitOps dans ArgoCD UI
+. ✅ Testé le flux complet: Git commit → ArgoCD sync → Application update
+. ✅ Démontré le self-healing ArgoCD
+
+*Messages clés validés:*
+
+* ✅ Provisionnement rapide avec CNV (minutes vs heures)
+* ✅ Automatisation complète via GitOps (Git push = déploiement)
+
+== Prochaines étapes
+
+Vous maîtrisez maintenant le provisionnement et le déploiement Field Content.
+
+Passez au xref:03-skills.adoc[Module 3] pour découvrir comment enrichir vos démos avec le Skills Marketplace et partager vos créations avec la communauté RHDP.
+
+[.text-center]
+xref:03-skills.adoc[Continuer vers le Module 3 →]

@@ -1,6 +1,24 @@
 # Injected by RHDP
 deployer:
   domain: apps.cluster-example.redhatworkshops.io
+  apiUrl: https://api.cluster-example.redhatworkshops.io:6443
+
+# Git repository configuration
+gitUrl: https://github.com/slallemand/rhdp-field-content-demo.git
+gitRef: main
+
+# ArgoCD configuration
+argocd:
+  namespace: openshift-gitops
+
+# Namespace for field content deployment
+namespace: field-content-demo
+
+# User information (injected by RHDP)
+userInfo:
+  user: admin
+  password: ""
+  guid: ""
 
 # Operators to deploy
 operators:
@@ -22,6 +40,28 @@ operators:
 
 # Helm charts to deploy
 helmCharts:
+  # Showroom demo - Interactive demo content
+  showroom-demo:
+    enabled: true
+    namespace: showroom
+    wave: 20
+    source:
+      repoURL: https://github.com/slallemand/rhdp-field-content-demo.git
+      targetRevision: HEAD
+      path: components/showroom-demo
+    # Values are injected via special template - see note below
+    valuesTemplate: |
+      deployer:
+        apiUrl: {{ .Values.deployer.apiUrl | quote }}
+        domain: {{ .Values.deployer.domain | quote }}
+      userInfo:
+        user: {{ .Values.userInfo.user | quote }}
+        password: {{ .Values.userInfo.password | quote }}
+        guid: {{ .Values.userInfo.guid | quote }}
+      content:
+        gitUrl: {{ .Values.gitUrl | quote }}
+        gitRef: {{ .Values.gitRef | quote }}
+
   # Example: Node.js "Hello RHDP" application
   hello-nodejs:
     enabled: true  # Set to true to deploy

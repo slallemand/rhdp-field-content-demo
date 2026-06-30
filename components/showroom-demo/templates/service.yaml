@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "showroom-demo.fullname" . }}
+  labels:
+    {{- include "showroom-demo.labels" . | nindent 4 }}
+    demo.redhat.com/application: "field-content"
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "showroom-demo.selectorLabels" . | nindent 4 }}

@@ -1,0 +1,51 @@
+# Showroom demo deployment configuration
+
+replicaCount: 1
+
+image:
+  repository: quay.io/rhpds/showroom
+  tag: "v2.6.1"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+route:
+  enabled: true
+  host: ""  # Auto-generated if empty
+  tls:
+    enabled: true
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+# Showroom content configuration
+content:
+  # Git repository containing the Showroom content
+  gitUrl: https://github.com/slallemand/rhdp-field-content-demo.git
+  gitRef: main
+  # Path within the repo where showroom-content/ is located
+  contentPath: showroom-content
+
+# RHDP injected values (these are provided automatically by Field Content CI)
+deployer:
+  apiUrl: ""
+  domain: ""
+
+# OpenShift user info (injected by RHDP)
+userInfo:
+  user: admin
+  password: ""
+  guid: ""
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Labels required by RHDP for health monitoring
+labels:
+  demo.redhat.com/application: "field-content"
