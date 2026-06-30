@@ -49,7 +49,7 @@ helmCharts:
       # Official RHPDS Showroom deployer Helm chart
       repoURL: https://rhpds.github.io/showroom-deployer
       chart: showroom
-      targetRevision: 1.0.0  # Use latest stable version
+      targetRevision: 0.4.9  # Latest version
     # Values for showroom-deployer chart
     valuesTemplate: |
       # Deploy the content from our Git repository
