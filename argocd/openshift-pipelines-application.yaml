@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/slallemand/rhdh-field-content-demo.git
+    repoURL: https://github.com/slallemand/rhdp-field-content-demo.git
     targetRevision: HEAD
     path: helm/openshift-pipelines
     helm:

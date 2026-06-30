@@ -24,7 +24,7 @@ This repository contains GitOps configurations for deploying OpenShift Pipelines
 
 - **Namespace**: `openshift-operators` (OLM-managed operators namespace)
 - **ArgoCD Namespace**: `openshift-gitops`
-- **Repository URL**: `https://github.com/slallemand/rhdh-field-content-demo.git`
+- **Repository URL**: `https://github.com/slallemand/rhdp-field-content-demo.git`
 
 ## Working with This Repository
 
