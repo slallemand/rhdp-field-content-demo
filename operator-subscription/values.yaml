@@ -1,0 +1,4 @@
+name: ""
+channel: ""
+source: redhat-operators
+namespace: openshift-operators

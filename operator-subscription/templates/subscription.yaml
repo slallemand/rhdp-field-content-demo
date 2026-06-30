@@ -1,0 +1,13 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    demo.redhat.com/application: "field-content"
+spec:
+  channel: {{ .Values.channel }}
+  installPlanApproval: Automatic
+  name: {{ .Values.name }}
+  source: {{ .Values.source }}
+  sourceNamespace: openshift-marketplace

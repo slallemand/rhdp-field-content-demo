@@ -8,12 +8,24 @@ metadata:
   namespace: openshift-gitops
   labels:
     demo.redhat.com/application: "field-content"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: https://github.com/slallemand/rhdp-field-content-demo.git
     targetRevision: HEAD
-    path: manifests/{{ $name }}
+    path: operator-subscription
+    helm:
+      parameters:
+        - name: name
+          value: {{ $config.name }}
+        - name: channel
+          value: {{ $config.channel }}
+        - name: source
+          value: {{ $config.source }}
+        - name: namespace
+          value: {{ $config.namespace }}
   destination:
     server: https://kubernetes.default.svc
     namespace: {{ $config.namespace }}

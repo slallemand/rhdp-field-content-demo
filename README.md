@@ -1,6 +1,18 @@
-# RHDP Field Content - Simple OLM Operators
+# RHDP Field Content - OLM Operators (App of Apps)
 
-Deploy OLM operators to RHDP clusters using GitOps.
+Deploy OLM operators to RHDP clusters using GitOps and ArgoCD App of Apps pattern.
+
+## Architecture
+
+```
+RHDP → Deploys root Helm chart
+  ↓
+Creates ArgoCD Applications (one per operator)
+  ↓
+Each Application uses the generic operator-subscription chart
+  ↓
+Subscriptions created with values from values.yaml
+```
 
 ## Quick Start
 
@@ -9,6 +21,8 @@ Deploy OLM operators to RHDP clusters using GitOps.
    operators:
      openshift-pipelines:
        enabled: true
+       name: openshift-pipelines-operator-rh
+       channel: latest
    ```
 
 2. **Deploy to RHDP**:
@@ -18,60 +32,53 @@ Deploy OLM operators to RHDP clusters using GitOps.
 
 ## Add a New Operator
 
-1. **Add to `values.yaml`**:
-   ```yaml
-   operators:
-     my-operator:
-       enabled: true
-       name: my-operator-name
-       channel: stable
-       source: redhat-operators
-       namespace: openshift-operators
-   ```
+Just edit `values.yaml`:
 
-2. **Create manifest directory**:
-   ```bash
-   mkdir -p manifests/my-operator
-   ```
+```yaml
+operators:
+  serverless:
+    enabled: true
+    name: serverless-operator
+    channel: stable
+    source: redhat-operators
+    namespace: openshift-serverless
+```
 
-3. **Create `manifests/my-operator/subscription.yaml`**:
-   ```yaml
-   apiVersion: operators.coreos.com/v1alpha1
-   kind: Subscription
-   metadata:
-     name: my-operator-name
-     namespace: openshift-operators
-   spec:
-     channel: stable
-     name: my-operator-name
-     source: redhat-operators
-     sourceNamespace: openshift-marketplace
-     installPlanApproval: Automatic
-   ```
-
-4. **Commit and push** - ArgoCD deploys automatically
+Commit, push - done! No need to create manifest files.
 
 ## Structure
 
 ```
 .
-├── Chart.yaml                        # Helm chart definition
-├── values.yaml                       # Operator configuration
+├── Chart.yaml                      # Root chart
+├── values.yaml                     # Operator configuration
 ├── templates/
-│   └── operators.yaml               # Creates ArgoCD Applications
-└── manifests/
-    └── openshift-pipelines/
-        └── subscription.yaml        # OLM Subscription manifest
+│   └── applications.yaml          # Creates ArgoCD Applications (loop)
+└── operator-subscription/          # Generic chart for OLM subscriptions
+    ├── Chart.yaml
+    ├── values.yaml
+    └── templates/
+        └── subscription.yaml
 ```
+
+## How It Works
+
+1. Root chart loops through `values.yaml` operators
+2. For each enabled operator, creates an ArgoCD Application
+3. All Applications point to the same `operator-subscription/` chart
+4. Each Application passes different Helm parameters (name, channel, etc.)
+5. Generic chart renders the OLM Subscription with those parameters
+
+**Result**: One generic chart, reused for all operators!
 
 ## Testing
 
 ```bash
-# Validate chart
-helm lint .
-
-# See what gets deployed
+# See what ArgoCD Applications get created
 helm template test .
-```
 
-That's it!
+# Test the generic subscription chart
+helm template test operator-subscription/ \
+  --set name=my-operator \
+  --set channel=stable
+```
