@@ -1,8 +1,5 @@
 apiVersion: v2
-name: field-content-demo
-description: App of Apps - Deploy OpenShift Pipelines and other components via ArgoCD
+name: field-content
+description: Deploy OLM operators via ArgoCD Applications
 type: application
 version: 1.0.0
-appVersion: "1.0.0"
-maintainers:
-  - name: Sebastien Lallemand

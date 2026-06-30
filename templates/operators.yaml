@@ -1,0 +1,27 @@
+{{- range $name, $config := .Values.operators }}
+{{- if $config.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $name }}
+  namespace: openshift-gitops
+  labels:
+    demo.redhat.com/application: "field-content"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/slallemand/rhdp-field-content-demo.git
+    targetRevision: HEAD
+    path: manifests/{{ $name }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ $config.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+{{- end }}
+{{- end }}
