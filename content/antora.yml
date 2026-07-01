@@ -1,4 +1,4 @@
-name: modules
+name: antora
 title: "Comment créer votre propre démo sur RHDP"
 version: ~
 start_page: index.adoc
