@@ -1,6 +1,6 @@
 site:
   title: "Comment créer votre propre démo sur RHDP"
-  url: /
+  url: /antora
   start_page: modules::index.adoc
 
 content:
