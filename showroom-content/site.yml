@@ -4,7 +4,7 @@ runtime:
 site:
   title: How to customise your own demo on RHDP
   url: /
-  start_page: showroom::index.adoc
+  start_page: modules::index.adoc
 
 content:
   sources:

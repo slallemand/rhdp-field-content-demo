@@ -1,5 +1,5 @@
-name: showroom
+name: modules
 title: Red Hat Demo Platform - Field Content Demo
-version: main
+version: antora
 nav:
   - modules/ROOT/nav.adoc
