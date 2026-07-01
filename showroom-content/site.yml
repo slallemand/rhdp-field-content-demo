@@ -4,7 +4,7 @@ runtime:
 site:
   title: How to customise your own demo on RHDP
   url: /
-  start_page: antora::index.adoc
+  start_page: antora:ROOT:index.adoc
 
 content:
   sources:
