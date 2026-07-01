@@ -52,12 +52,32 @@ helmCharts:
       targetRevision: 2.1.7  # Latest single-pod version
     # Values for showroom-single-pod chart
     valuesTemplate: |
-      # Deploy the content from our Git repository
-      deploy:
-        name: rhdp-demo
-        url: {{ .Values.gitUrl | quote }}
-        ref: {{ .Values.gitRef | quote }}
-        path: showroom-content
+      # Basic configuration
+      guid: {{ .Values.userInfo.guid | default "demo" | quote }}
+      user: {{ .Values.userInfo.user | default "admin" | quote }}
+
+      deployer:
+        domain: {{ .Values.deployer.domain | quote }}
+
+      # Content repository configuration
+      content:
+        repoUrl: {{ .Values.gitUrl | quote }}
+        repoRef: {{ .Values.gitRef | quote }}
+        antoraPlaybook: showroom-content/site.yml
+        enableDevMode: "false"
+
+      # Disable components we don't need for a simple demo
+      wetty:
+        setup: "false"
+
+      terminal:
+        setup: "false"
+
+      runtime_automation:
+        setup: "false"
+
+      nookbag_sidecar:
+        setup: "false"
 
   # Example: Node.js "Hello RHDP" application
   hello-nodejs:
