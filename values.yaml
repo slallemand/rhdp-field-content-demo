@@ -49,8 +49,8 @@ helmCharts:
       # Official RHPDS Showroom deployer Helm chart (single pod version)
       repoURL: https://rhpds.github.io/showroom-deployer
       chart: showroom-single-pod
-      targetRevision: 2.1.7  # Latest single-pod version
-    # Values for showroom-single-pod chart
+      targetRevision: 2.1.7
+    # Values for showroom-single-pod chart (matching rh-idp-lab model)
     valuesTemplate: |
       # Basic configuration
       guid: {{ .Values.userInfo.guid | default "demo" | quote }}
@@ -63,10 +63,8 @@ helmCharts:
       content:
         repoUrl: {{ .Values.gitUrl | quote }}
         repoRef: {{ .Values.gitRef | quote }}
-        antoraPlaybook: showroom-content/site.yml
+        antoraPlaybook: site.yml
         enableDevMode: "false"
-        # UI configuration from repo root
-        uiConfig: ui-config.yml
 
       # Disable components we don't need for a simple demo
       wetty:

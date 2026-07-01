@@ -1,5 +1,0 @@
-name: antora
-title: Red Hat Demo Platform - Field Content Demo
-version: modules
-nav:
-  - modules/ROOT/nav.adoc
