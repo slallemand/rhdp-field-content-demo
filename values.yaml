@@ -40,44 +40,44 @@ operators:
 
 # Helm charts to deploy
 helmCharts:
-  # Showroom demo - Interactive demo content using official RHPDS single-pod chart
-  showroom-demo:
-    enabled: true
-    namespace: showroom
-    wave: 20
-    source:
-      # Official RHPDS Showroom deployer Helm chart (single pod version)
-      repoURL: https://rhpds.github.io/showroom-deployer
-      chart: showroom-single-pod
-      targetRevision: 2.1.7
-    # Values for showroom-single-pod chart (matching rh-idp-lab model)
-    valuesTemplate: |
-      # Basic configuration
-      guid: {{ .Values.userInfo.guid | default "demo" | quote }}
-      user: {{ .Values.userInfo.user | default "admin" | quote }}
+  # # Showroom demo - Interactive demo content using official RHPDS single-pod chart
+  # showroom-demo:
+  #   enabled: true
+  #   namespace: showroom
+  #   wave: 20
+  #   source:
+  #     # Official RHPDS Showroom deployer Helm chart (single pod version)
+  #     repoURL: https://rhpds.github.io/showroom-deployer
+  #     chart: showroom-single-pod
+  #     targetRevision: 2.1.7
+  #   # Values for showroom-single-pod chart (matching rh-idp-lab model)
+  #   valuesTemplate: |
+  #     # Basic configuration
+  #     guid: {{ .Values.userInfo.guid | default "demo" | quote }}
+  #     user: {{ .Values.userInfo.user | default "admin" | quote }}
 
-      deployer:
-        domain: {{ .Values.deployer.domain | quote }}
+  #     deployer:
+  #       domain: {{ .Values.deployer.domain | quote }}
 
-      # Content repository configuration
-      content:
-        repoUrl: {{ .Values.gitUrl | quote }}
-        repoRef: {{ .Values.gitRef | quote }}
-        antoraPlaybook: site.yml
-        enableDevMode: "false"
+  #     # Content repository configuration
+  #     content:
+  #       repoUrl: {{ .Values.gitUrl | quote }}
+  #       repoRef: {{ .Values.gitRef | quote }}
+  #       antoraPlaybook: site.yml
+  #       enableDevMode: "true"
 
-      # Disable components we don't need for a simple demo
-      wetty:
-        setup: "false"
+  #     # Disable components we don't need for a simple demo
+  #     wetty:
+  #       setup: "false"
 
-      terminal:
-        setup: "false"
+  #     terminal:
+  #       setup: "false"
 
-      runtime_automation:
-        setup: "false"
+  #     runtime_automation:
+  #       setup: "false"
 
-      nookbag_sidecar:
-        setup: "false"
+  #     nookbag_sidecar:
+  #       setup: "false"
 
   # Example: Node.js "Hello RHDP" application
   hello-nodejs:
