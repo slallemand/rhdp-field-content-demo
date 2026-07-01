@@ -8,8 +8,8 @@ site:
 
 content:
   sources:
-    - url: ./
-      start_path: .
+    - url: ../
+      start_path: showroom-content
       branches: HEAD
 
 ui:
