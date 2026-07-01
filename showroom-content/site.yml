@@ -15,7 +15,6 @@ content:
 ui:
   bundle:
     url: https://github.com/rhpds/showroom-content/releases/latest/download/ui-bundle.zip
-  supplemental_files: ./supplemental-ui
 
 output:
   dir: ./gh-pages
