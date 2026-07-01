@@ -3,7 +3,7 @@ runtime:
 
 site:
   title: How to customise your own demo on RHDP
-  url: https://slallemand.github.io/rhdp-field-content-demo
+  url: /
   start_page: showroom::index.adoc
 
 content:

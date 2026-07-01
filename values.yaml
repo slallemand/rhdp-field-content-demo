@@ -65,6 +65,8 @@ helmCharts:
         repoRef: {{ .Values.gitRef | quote }}
         antoraPlaybook: showroom-content/site.yml
         enableDevMode: "false"
+        # UI configuration from repo root
+        uiConfig: ui-config.yml
 
       # Disable components we don't need for a simple demo
       wetty:
