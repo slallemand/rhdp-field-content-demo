@@ -16,6 +16,3 @@ content:
 ui:
   bundle:
     url: https://github.com/rhpds/nookbag/releases/download/nookbag-v0.3.6/nookbag-v0.3.6.zip
-
-output:
-  dir: ./gh-pages
