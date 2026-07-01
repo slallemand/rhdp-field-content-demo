@@ -1,6 +1,6 @@
 name: modules
 title: "Comment créer votre propre démo sur RHDP"
-version: master
+version: ~
 start_page: index.adoc
 nav:
   - modules/ROOT/nav.adoc

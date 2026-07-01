@@ -1,6 +1,6 @@
 site:
   title: "Comment créer votre propre démo sur RHDP"
-  url: /antora
+  url: https://github.com/slallemand/rhdp-field-content-demo
   start_page: modules::index.adoc
 
 content:
