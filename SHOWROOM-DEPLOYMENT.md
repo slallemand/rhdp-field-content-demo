@@ -24,12 +24,15 @@ RHDP Field Content CI
 
 ## Official RHPDS Showroom Deployer
 
-This deployment uses the **official RHPDS Showroom deployer Helm chart** from `https://rhpds.github.io/showroom-deployer`.
+This deployment uses the **official RHPDS Showroom single-pod deployer Helm chart** from `https://rhpds.github.io/showroom-deployer`.
 
-The chart automatically:
-- Builds the Antora site from Git repository
-- Creates BuildConfig, ImageStream, Deployment, Service, Route
-- Handles all OpenShift-specific configuration
+Chart: `showroom-single-pod` (version 2.1.7)
+
+The single-pod version:
+- Deploys everything in a single pod (simpler, faster startup)
+- Builds the Antora site from Git repository at pod startup
+- Creates Deployment, Service, Route
+- No BuildConfig/ImageStream needed (all in one container)
 
 ## How It Works
 
@@ -72,10 +75,10 @@ helmCharts:
     namespace: showroom
     wave: 20
     source:
-      # Official RHPDS Showroom deployer Helm chart
+      # Official RHPDS Showroom deployer Helm chart (single-pod version)
       repoURL: https://rhpds.github.io/showroom-deployer
-      chart: showroom
-      targetRevision: 0.4.9
+      chart: showroom-single-pod
+      targetRevision: 2.1.7
     valuesTemplate: |
       deploy:
         name: rhdp-demo

@@ -40,17 +40,17 @@ operators:
 
 # Helm charts to deploy
 helmCharts:
-  # Showroom demo - Interactive demo content using official RHPDS chart
+  # Showroom demo - Interactive demo content using official RHPDS single-pod chart
   showroom-demo:
     enabled: true
     namespace: showroom
     wave: 20
     source:
-      # Official RHPDS Showroom deployer Helm chart
+      # Official RHPDS Showroom deployer Helm chart (single pod version)
       repoURL: https://rhpds.github.io/showroom-deployer
-      chart: showroom
-      targetRevision: 0.4.9  # Latest version
-    # Values for showroom-deployer chart
+      chart: showroom-single-pod
+      targetRevision: 2.1.7  # Latest single-pod version
+    # Values for showroom-single-pod chart
     valuesTemplate: |
       # Deploy the content from our Git repository
       deploy:
